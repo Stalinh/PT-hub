@@ -1,5 +1,6 @@
-const projects = [
+const defaultProjectData = [
   {
+    id: 1,
     name: "AI Customer Service Upgrade",
     summary: "Customer service project for omnichannel automation rollout",
     focus: "优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。",
@@ -13,6 +14,7 @@ const projects = [
     icon: "sparkles",
   },
   {
+    id: 2,
     name: "Blockchain Traceability Platform",
     summary: "Traceability project for cross-border supplier data integration",
     focus: "需要锁定外部供应商字段标准，避免后续链路追溯口径不一致。",
@@ -26,6 +28,7 @@ const projects = [
     icon: "network",
   },
   {
+    id: 3,
     name: "Mobile App 3.0 Redesign",
     summary: "App redesign project for membership and checkout experience",
     focus: "已进入验收收尾阶段，建议将设计系统沉淀为后续产品共用资产。",
@@ -39,6 +42,7 @@ const projects = [
     icon: "smartphone",
   },
   {
+    id: 4,
     name: "Next-Gen ERP Refactoring",
     summary: "ERP refactoring project for workflow migration and modularization",
     focus: "模块拆分已经完成一半，下一阶段重点是降低历史流程迁移的业务中断风险。",
@@ -52,6 +56,7 @@ const projects = [
     icon: "blocks",
   },
   {
+    id: 5,
     name: "Smart City Data Platform",
     summary: "Data platform project for sensor streams and KPI dashboards",
     focus: "建议本周完成核心指标看板锁版，确保月底前给管理端留出验收窗口。",
@@ -78,6 +83,8 @@ const newIslandClose = document.getElementById("new-island-close");
 const newProjectInput = document.getElementById("new-project-input");
 const newProjectSubmit = document.getElementById("new-project-submit");
 const modeButtons = document.querySelectorAll(".mode-button[data-mode]");
+const dataStatusText = document.getElementById("data-status-text");
+const dataStatusDot = document.getElementById("data-status-dot");
 const detailEls = {
   title: document.getElementById("detail-title"),
   summary: document.getElementById("detail-summary"),
@@ -92,23 +99,55 @@ const VIEW_STORAGE_KEY = "pt-hub-active-view";
 const TABLE_MODE_STORAGE_KEY = "pt-hub-table-mode";
 const LEVEL_OPTIONS = ["V", "K", "R", "N"];
 const STATUS_OPTIONS = ["in design", "installing", "installed", "finished"];
+const PROJECT_DATA_ENDPOINT = "/api/project-data";
+let projectData = [];
 let nextProjectId = 1;
 let copiedProjectName = null;
 let selectedProjectId = null;
 let currentTableMode = readTableMode();
 let activeEditCell = null;
+let saveChain = Promise.resolve();
+let saveRequestCounter = 0;
+let latestCompletedSave = 0;
 const floatingChoiceMenu = document.createElement("div");
 
 floatingChoiceMenu.className = "floating-choice-menu";
 floatingChoiceMenu.hidden = true;
 document.body.appendChild(floatingChoiceMenu);
 
-projects.forEach((project, index) => {
-  project.id = index + 1;
-});
+function cloneDefaultProjectData() {
+  return defaultProjectData.map((project) => ({ ...project }));
+}
 
-nextProjectId = projects.length + 1;
-selectedProjectId = projects[0]?.id || null;
+function normalizeProject(item, fallbackId) {
+  return {
+    id: Number.isInteger(item?.id) ? item.id : fallbackId,
+    name: typeof item?.name === "string" ? item.name : `Project ${fallbackId}`,
+    summary: typeof item?.summary === "string" ? item.summary : "",
+    focus: typeof item?.focus === "string" ? item.focus : "",
+    projectNo: typeof item?.projectNo === "string" ? item.projectNo : "",
+    contractNo: typeof item?.contractNo === "string" ? item.contractNo : "",
+    level: LEVEL_OPTIONS.includes(item?.level) ? item.level : "N",
+    status: STATUS_OPTIONS.includes(item?.status) ? item.status : "in design",
+    progress: clampProgress(item?.progress),
+    startDate: typeof item?.startDate === "string" ? item.startDate : "",
+    endDate: typeof item?.endDate === "string" ? item.endDate : "",
+    icon: typeof item?.icon === "string" ? item.icon : "folder-open",
+  };
+}
+
+function initializeProjectData(list) {
+  const source = Array.isArray(list) ? list : cloneDefaultProjectData();
+  projectData = source.map((project, index) => normalizeProject(project, index + 1));
+  nextProjectId = projectData.reduce((maxId, project) => Math.max(maxId, project.id), 0) + 1;
+  selectedProjectId = projectData[0]?.id || null;
+}
+
+function setDataStatus(state, message) {
+  if (!dataStatusText || !dataStatusDot) return;
+  dataStatusText.textContent = message;
+  dataStatusDot.dataset.state = state;
+}
 
 function readSidebarState() {
   try {
@@ -159,7 +198,7 @@ function persistTableMode(mode) {
 }
 
 function levelClass(level) {
-  return `level-${level.toLowerCase()}`;
+  return `level-${String(level).toLowerCase()}`;
 }
 
 function statusClass(status) {
@@ -176,6 +215,82 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function serializeProjectData() {
+  return {
+    projectData: projectData.map((project) => ({ ...project })),
+  };
+}
+
+async function persistProjectData() {
+  const requestId = ++saveRequestCounter;
+  const payload = serializeProjectData();
+
+  setDataStatus("saving", "Saving project data...");
+
+  saveChain = saveChain
+    .catch(() => {})
+    .then(async () => {
+      const response = await fetch(PROJECT_DATA_ENDPOINT, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save project data.");
+      }
+
+      latestCompletedSave = requestId;
+      if (requestId === saveRequestCounter) {
+        setDataStatus("saved", "Project data saved.");
+      }
+
+      return result;
+    })
+    .catch((error) => {
+      if (requestId >= latestCompletedSave) {
+        setDataStatus("error", error.message || "Failed to save project data.");
+      }
+      throw error;
+    });
+
+  try {
+    await saveChain;
+  } catch (_error) {
+    // Status text already updated. Keep the UI interactive.
+  }
+}
+
+async function loadProjectData() {
+  setDataStatus("loading", "Loading project data...");
+
+  try {
+    const response = await fetch(PROJECT_DATA_ENDPOINT, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to load project data.");
+    }
+
+    initializeProjectData(result.projectData);
+    renderRows();
+    syncDetailPanel();
+    setDataStatus("saved", "Project data loaded.");
+  } catch (error) {
+    initializeProjectData(cloneDefaultProjectData());
+    renderRows();
+    syncDetailPanel();
+    setDataStatus("error", error.message || "Failed to load project data.");
+  }
 }
 
 function renderTextInput(project, field, label, extraClass = "") {
@@ -238,7 +353,7 @@ function updateFloatingChoiceMenu() {
     return;
   }
 
-  const project = projects.find((item) => item.id === activeEditCell.projectId);
+  const project = projectData.find((item) => item.id === activeEditCell.projectId);
   const trigger = tableBody.querySelector(
     `tr[data-project-id="${activeEditCell.projectId}"] [data-field="${activeEditCell.field}"]`
   );
@@ -433,7 +548,7 @@ function clampProgress(value) {
 }
 
 function updateProjectField(projectId, field, value) {
-  const project = projects.find((item) => item.id === projectId);
+  const project = projectData.find((item) => item.id === projectId);
   if (!project) return;
 
   if (field === "progress") {
@@ -445,6 +560,8 @@ function updateProjectField(projectId, field, value) {
   if (project.id === selectedProjectId) {
     applyProjectToDetail(project);
   }
+
+  persistProjectData();
 }
 
 function startCellEdit(projectId, field) {
@@ -523,7 +640,7 @@ function bindEditableCellEvents(row, project) {
 function renderRows() {
   tableBody.innerHTML = "";
 
-  projects.forEach((project) => {
+  projectData.forEach((project) => {
     const row = document.createElement("tr");
     row.dataset.projectId = String(project.id);
     if (project.id === selectedProjectId) row.classList.add("selected");
@@ -591,7 +708,7 @@ function renderRows() {
 }
 
 function syncDetailPanel() {
-  if (!projects.length) {
+  if (!projectData.length) {
     detailEls.title.textContent = "No project selected";
     detailEls.summary.textContent = "Create a project to populate the project brief.";
     detailEls.progressText.textContent = "0%";
@@ -639,7 +756,7 @@ function selectProject(project, row) {
 }
 
 function restoreSelectedRow() {
-  const activeProject = projects.find((project) => project.id === selectedProjectId) || projects[0];
+  const activeProject = projectData.find((project) => project.id === selectedProjectId) || projectData[0];
   if (!activeProject) return;
   const activeRow = document.querySelector(`tbody tr[data-project-id="${activeProject.id}"]`);
 
@@ -649,17 +766,18 @@ function restoreSelectedRow() {
 }
 
 function deleteProject(projectId) {
-  const index = projects.findIndex((project) => project.id === projectId);
+  const index = projectData.findIndex((project) => project.id === projectId);
   if (index === -1) return;
 
-  projects.splice(index, 1);
+  projectData.splice(index, 1);
 
   if (selectedProjectId === projectId) {
-    selectedProjectId = projects[0]?.id || null;
+    selectedProjectId = projectData[0]?.id || null;
   }
 
   renderRows();
   syncDetailPanel();
+  persistProjectData();
 }
 
 function setActiveView(view) {
@@ -702,7 +820,7 @@ function setNewIslandOpen(open) {
 }
 
 function createProjectDraft(name) {
-  const nextIndex = projects.length + 1;
+  const nextIndex = projectData.length + 1;
   const project = {
     id: nextProjectId++,
     name,
@@ -718,11 +836,12 @@ function createProjectDraft(name) {
     icon: "folder-open",
   };
 
-  projects.unshift(project);
+  projectData.unshift(project);
   selectedProjectId = project.id;
   renderRows();
   syncDetailPanel();
   setNewIslandOpen(false);
+  persistProjectData();
 }
 
 function submitNewProject() {
@@ -820,23 +939,36 @@ function initTableModeToggle() {
   setTableMode(currentTableMode);
 }
 
-document.addEventListener("click", (event) => {
-  if (!activeEditCell) return;
-  if (event.target.closest(".floating-choice-menu")) return;
-  stopCellEdit();
-});
+function initGlobalEvents() {
+  document.addEventListener("click", (event) => {
+    if (!activeEditCell) return;
+    if (event.target.closest(".floating-choice-menu")) return;
+    stopCellEdit();
+  });
 
-window.addEventListener("resize", () => {
-  updateFloatingChoiceMenu();
-});
+  window.addEventListener("resize", () => {
+    updateFloatingChoiceMenu();
+  });
 
-window.addEventListener("scroll", () => {
-  updateFloatingChoiceMenu();
-}, true);
+  window.addEventListener(
+    "scroll",
+    () => {
+      updateFloatingChoiceMenu();
+    },
+    true
+  );
+}
 
-renderRows();
-restoreSelectedRow();
-initSidebarToggle();
-initNavigation();
-initNewIsland();
-initTableModeToggle();
+async function initApp() {
+  initializeProjectData(cloneDefaultProjectData());
+  renderRows();
+  restoreSelectedRow();
+  initSidebarToggle();
+  initNavigation();
+  initNewIsland();
+  initTableModeToggle();
+  initGlobalEvents();
+  await loadProjectData();
+}
+
+initApp();

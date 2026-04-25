@@ -1,0 +1,74 @@
+{
+  "projectData": [
+    {
+      "id": 1,
+      "name": "shen'yan",
+      "summary": "Customer service project for omnichannel automation rollout",
+      "focus": "优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。",
+      "projectNo": "PT-24001",
+      "contractNo": "CN-2024-0186",
+      "level": "V",
+      "status": "in design",
+      "progress": 30,
+      "startDate": "2024-01-01",
+      "endDate": "2024-04-15",
+      "icon": "sparkles"
+    },
+    {
+      "id": 2,
+      "name": "Blockchain Traceability Platform",
+      "summary": "Traceability project for cross-border supplier data integration",
+      "focus": "需要锁定外部供应商字段标准，避免后续链路追溯口径不一致。",
+      "projectNo": "PT-24007",
+      "contractNo": "CN-2024-0241",
+      "level": "R",
+      "status": "installing",
+      "progress": 60,
+      "startDate": "2024-03-01",
+      "endDate": "2024-09-30",
+      "icon": "network"
+    },
+    {
+      "id": 3,
+      "name": "Mobile App 3.0 Redesign",
+      "summary": "App redesign project for membership and checkout experience",
+      "focus": "已进入验收收尾阶段，建议将设计系统沉淀为后续产品共用资产。",
+      "projectNo": "PT-23019",
+      "contractNo": "CN-2023-1138",
+      "level": "N",
+      "status": "finished",
+      "progress": 100,
+      "startDate": "2023-11-01",
+      "endDate": "2024-03-01",
+      "icon": "smartphone"
+    },
+    {
+      "id": 4,
+      "name": "Next-Gen ERP Refactoring",
+      "summary": "ERP refactoring project for workflow migration and modularization",
+      "focus": "模块拆分已经完成一半，下一阶段重点是降低历史流程迁移的业务中断风险。",
+      "projectNo": "PT-24003",
+      "contractNo": "CN-2024-0204",
+      "level": "K",
+      "status": "installing",
+      "progress": 45,
+      "startDate": "2024-02-01",
+      "endDate": "2024-12-31",
+      "icon": "blocks"
+    },
+    {
+      "id": 5,
+      "name": "Smart City Data Platform",
+      "summary": "Data platform project for sensor streams and KPI dashboards",
+      "focus": "建议本周完成核心指标看板锁版，确保月底前给管理端留出验收窗口。",
+      "projectNo": "PT-24011",
+      "contractNo": "CN-2024-0312",
+      "level": "V",
+      "status": "installed",
+      "progress": 75,
+      "startDate": "2024-01-15",
+      "endDate": "2024-06-30",
+      "icon": "building-2"
+    }
+  ]
+}
