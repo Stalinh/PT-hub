@@ -99,6 +99,11 @@ let copiedProjectName = null;
 let selectedProjectId = null;
 let currentTableMode = readTableMode();
 let activeEditCell = null;
+const floatingChoiceMenu = document.createElement("div");
+
+floatingChoiceMenu.className = "floating-choice-menu";
+floatingChoiceMenu.hidden = true;
+document.body.appendChild(floatingChoiceMenu);
 
 projects.forEach((project, index) => {
   project.id = index + 1;
@@ -189,22 +194,114 @@ function renderTextInput(project, field, label, extraClass = "") {
   `;
 }
 
-function renderSelect(project, field, options, label) {
-  const optionMarkup = options
-    .map(
-      (option) => `
-        <option value="${escapeHtml(option)}" ${project[field] === option ? "selected" : ""}>
-          ${escapeHtml(option)}
-        </option>
-      `
-    )
-    .join("");
+function isChoiceField(field) {
+  return field === "level" || field === "status";
+}
+
+function getChoiceConfig(field) {
+  if (field === "level") {
+    return {
+      label: "Project level",
+      options: LEVEL_OPTIONS,
+      renderOption: (option) => `<span class="pill ${levelClass(option)}">${escapeHtml(option)}</span>`,
+    };
+  }
+
+  return {
+    label: "Project status",
+    options: STATUS_OPTIONS,
+    renderOption: (option) =>
+      `<span class="status ${statusClass(option)}">${escapeHtml(option)}</span>`,
+  };
+}
+
+function renderChoiceTrigger(project, field) {
+  const { label, renderOption } = getChoiceConfig(field);
 
   return `
-    <select class="cell-select" data-field="${field}" aria-label="${escapeHtml(label)}">
-      ${optionMarkup}
-    </select>
+    <button
+      class="choice-trigger ${isEditingCell(project.id, field) ? "active" : ""}"
+      type="button"
+      data-editable="true"
+      data-project-id="${project.id}"
+      data-field="${field}"
+      aria-label="${escapeHtml(label)}"
+    >
+      <span class="choice-trigger-value">${renderOption(project[field])}</span>
+      <i data-lucide="chevron-down"></i>
+    </button>
   `;
+}
+
+function updateFloatingChoiceMenu() {
+  if (!activeEditCell || !isChoiceField(activeEditCell.field)) {
+    floatingChoiceMenu.hidden = true;
+    floatingChoiceMenu.innerHTML = "";
+    return;
+  }
+
+  const project = projects.find((item) => item.id === activeEditCell.projectId);
+  const trigger = tableBody.querySelector(
+    `tr[data-project-id="${activeEditCell.projectId}"] [data-field="${activeEditCell.field}"]`
+  );
+
+  if (!project || !trigger) {
+    floatingChoiceMenu.hidden = true;
+    floatingChoiceMenu.innerHTML = "";
+    return;
+  }
+
+  const { label, options, renderOption } = getChoiceConfig(activeEditCell.field);
+  const optionMarkup = options
+    .map((option) => {
+      const selected = project[activeEditCell.field] === option;
+
+      return `
+        <button
+          class="choice-option ${selected ? "active" : ""}"
+          type="button"
+          data-choice-option="true"
+          data-field="${activeEditCell.field}"
+          data-value="${escapeHtml(option)}"
+          aria-label="${escapeHtml(`${label}: ${option}`)}"
+        >
+          ${renderOption(option)}
+        </button>
+      `;
+    })
+    .join("");
+
+  floatingChoiceMenu.innerHTML = `<div class="choice-menu">${optionMarkup}</div>`;
+
+  const rect = trigger.getBoundingClientRect();
+  const minWidth = Math.max(rect.width, 168);
+  const viewportPadding = 12;
+
+  floatingChoiceMenu.style.minWidth = `${minWidth}px`;
+  floatingChoiceMenu.style.top = "0px";
+  floatingChoiceMenu.style.left = "0px";
+  floatingChoiceMenu.hidden = false;
+
+  const menuRect = floatingChoiceMenu.getBoundingClientRect();
+  const fitsBelow = rect.bottom + 8 + menuRect.height <= window.innerHeight - viewportPadding;
+  const top = fitsBelow
+    ? rect.bottom + 8
+    : Math.max(viewportPadding, rect.top - menuRect.height - 8);
+  const left = Math.min(
+    rect.left,
+    window.innerWidth - menuRect.width - viewportPadding
+  );
+
+  floatingChoiceMenu.style.top = `${top}px`;
+  floatingChoiceMenu.style.left = `${Math.max(viewportPadding, left)}px`;
+
+  floatingChoiceMenu.querySelectorAll("[data-choice-option='true']").forEach((control) => {
+    control.addEventListener("click", (event) => {
+      event.stopPropagation();
+      updateProjectField(project.id, control.dataset.field, control.dataset.value);
+      stopCellEdit();
+    });
+  });
 }
 
 function renderProgressInput(project) {
@@ -286,28 +383,20 @@ function renderProjectCell(project) {
 }
 
 function renderLevelCell(project) {
-  if (isEditingCell(project.id, "level")) {
-    return renderSelect(project, "level", LEVEL_OPTIONS, "Project level");
-  }
-
   const content = `<span class="pill ${levelClass(project.level)}">${escapeHtml(project.level)}</span>`;
 
   if (currentTableMode === "edit") {
-    return renderEditableShell(project, "level", "Edit project level", content);
+    return renderChoiceTrigger(project, "level");
   }
 
   return content;
 }
 
 function renderStatusCell(project) {
-  if (isEditingCell(project.id, "status")) {
-    return renderSelect(project, "status", STATUS_OPTIONS, "Project status");
-  }
-
   const content = `<span class="status ${statusClass(project.status)}">${escapeHtml(project.status)}</span>`;
 
   if (currentTableMode === "edit") {
-    return renderEditableShell(project, "status", "Edit project status", content);
+    return renderChoiceTrigger(project, "status");
   }
 
   return content;
@@ -379,6 +468,7 @@ function startCellEdit(projectId, field) {
   activeEditCell = { projectId, field };
   renderRows();
   syncDetailPanel();
+  updateFloatingChoiceMenu();
 
   window.requestAnimationFrame(() => {
     const activeControl = tableBody.querySelector(
@@ -392,6 +482,7 @@ function startCellEdit(projectId, field) {
 function stopCellEdit() {
   if (!activeEditCell) return;
   activeEditCell = null;
+  updateFloatingChoiceMenu();
   renderRows();
   syncDetailPanel();
 }
@@ -404,12 +495,12 @@ function bindEditableCellEvents(row, project) {
     });
   });
 
-  row.querySelectorAll("input, select").forEach((control) => {
+  row.querySelectorAll("input").forEach((control) => {
     control.addEventListener("click", (event) => event.stopPropagation());
     control.addEventListener("keydown", (event) => {
       event.stopPropagation();
 
-      if (event.key === "Enter" && control.tagName !== "SELECT") {
+      if (event.key === "Enter") {
         event.preventDefault();
         stopCellEdit();
       }
@@ -420,8 +511,7 @@ function bindEditableCellEvents(row, project) {
       }
     });
 
-    const eventName = control.tagName === "SELECT" ? "change" : "input";
-    control.addEventListener(eventName, (event) => {
+    control.addEventListener("input", (event) => {
       const { field } = event.currentTarget.dataset;
       if (!field) return;
 
@@ -435,10 +525,6 @@ function bindEditableCellEvents(row, project) {
       }
 
       updateProjectField(project.id, field, nextValue);
-
-      if (event.currentTarget.tagName === "SELECT") {
-        stopCellEdit();
-      }
     });
 
     control.addEventListener("blur", () => {
@@ -742,6 +828,7 @@ function setTableMode(mode) {
   persistTableMode(currentTableMode);
   renderRows();
   syncDetailPanel();
+  updateFloatingChoiceMenu();
 }
 
 function initTableModeToggle() {
@@ -753,6 +840,20 @@ function initTableModeToggle() {
 
   setTableMode(currentTableMode);
 }
+
+document.addEventListener("click", (event) => {
+  if (!activeEditCell) return;
+  if (event.target.closest(".floating-choice-menu")) return;
+  stopCellEdit();
+});
+
+window.addEventListener("resize", () => {
+  updateFloatingChoiceMenu();
+});
+
+window.addEventListener("scroll", () => {
+  updateFloatingChoiceMenu();
+}, true);
 
 renderRows();
 restoreSelectedRow();

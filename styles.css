@@ -1215,8 +1215,7 @@ tbody tr.selected {
   min-height: auto;
 }
 
-.cell-input,
-.cell-select {
+.cell-input {
   width: 100%;
   min-height: 40px;
   border: 0;
@@ -1232,11 +1231,88 @@ tbody tr.selected {
 }
 
 .cell-input:focus,
-.cell-select:focus {
+.choice-option:focus-visible {
   box-shadow:
     inset 0 0 0 1px rgba(31, 109, 98, 0.2),
     0 0 0 3px rgba(31, 109, 98, 0.12);
   background: #fffdfa;
+}
+
+.choice-trigger {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 4px 0 0;
+  border: 0;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+}
+
+.choice-trigger.active {
+  box-shadow: none;
+  background: transparent;
+}
+
+.choice-trigger-value {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.choice-trigger i,
+.choice-trigger svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  flex: none;
+}
+
+.floating-choice-menu {
+  position: fixed;
+  z-index: 9999;
+}
+
+.choice-menu {
+  padding: 5px;
+  border-radius: 16px;
+  display: grid;
+  gap: 5px;
+  background: rgba(255, 253, 250, 0.98);
+  box-shadow:
+    0 18px 38px rgba(54, 44, 35, 0.12),
+    inset 0 0 0 1px rgba(32, 29, 26, 0.08);
+}
+
+.choice-option {
+  width: 100%;
+  min-height: 42px;
+  padding: 4px 5px;
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: transparent;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.choice-option:hover {
+  transform: translateY(-1px);
+  background: rgba(244, 241, 234, 0.8);
+}
+
+.choice-option.active {
+  background: rgba(220, 239, 233, 0.54);
+}
+
+.choice-option .pill,
+.choice-option .status {
+  pointer-events: none;
 }
 
 .compact-input {
