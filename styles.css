@@ -10,9 +10,12 @@
   --muted-soft: #94897d;
   --line: rgba(32, 29, 26, 0.08);
   --line-strong: rgba(32, 29, 26, 0.14);
-  --accent: #1f6d62;
-  --accent-soft: #dcefe9;
-  --accent-deep: #174c45;
+  --accent: #0f5a45;
+  --accent-soft: #d7ebe3;
+  --accent-deep: #062f24;
+  --accent-glow: #1b7a5a;
+  --accent-mist: rgba(185, 228, 211, 0.16);
+  --accent-glass-line: rgba(214, 245, 232, 0.2);
   --warn: #c67829;
   --danger: #bb5a3c;
   --ok: #2f7d5d;
@@ -46,7 +49,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 82% 10%, rgba(31, 109, 98, 0.08), transparent 18%),
+    radial-gradient(circle at 82% 10%, rgba(15, 90, 69, 0.1), transparent 18%),
     radial-gradient(circle at 78% 72%, rgba(198, 120, 41, 0.08), transparent 16%);
 }
 
@@ -823,9 +826,11 @@ h1 {
 .panel-actions {
   flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 4px;
 }
 
 .mode-switch {
+  margin-left: 0;
   padding: 4px;
   border-radius: 999px;
   display: inline-flex;
@@ -857,8 +862,14 @@ h1 {
 }
 
 .mode-button.active {
-  background: var(--ink);
-  color: #fffdfa;
+  background:
+    linear-gradient(180deg, rgba(223, 248, 237, 0.12) 0%, rgba(223, 248, 237, 0) 42%),
+    linear-gradient(135deg, var(--accent-deep) 0%, #0a4a38 38%, var(--accent) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(241, 255, 249, 0.14),
+    inset 0 0 0 1px rgba(161, 215, 193, 0.08),
+    0 8px 18px rgba(6, 47, 36, 0.22);
+  color: #f7faf8;
 }
 
 .new-island {
@@ -1200,7 +1211,7 @@ tbody tr.selected {
 
 .editable-shell {
   width: 100%;
-  min-height: 40px;
+  min-height: 34px;
   padding: 0;
   border: 0;
   display: inline-flex;
@@ -1217,14 +1228,14 @@ tbody tr.selected {
 
 .cell-input {
   width: 100%;
-  min-height: 40px;
+  min-height: 34px;
   border: 0;
   outline: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(255, 253, 250, 0.94);
   color: var(--ink);
   box-shadow: inset 0 0 0 1px rgba(32, 29, 26, 0.1);
-  padding: 0 14px;
+  padding: 0 12px;
   font-size: 13px;
   font-weight: 600;
   transition: box-shadow 180ms ease, background 180ms ease;
@@ -1240,10 +1251,10 @@ tbody tr.selected {
 
 .choice-trigger {
   width: 100%;
-  min-height: 40px;
+  min-height: 34px;
   padding: 0 4px 0 0;
   border: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -1293,10 +1304,10 @@ tbody tr.selected {
 
 .choice-option {
   width: auto;
-  min-height: 42px;
+  min-height: 34px;
   padding: 4px 5px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -1323,12 +1334,12 @@ tbody tr.selected {
 }
 
 .progress-editor {
-  min-height: 40px;
-  border-radius: 14px;
+  min-height: 34px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 0 14px;
+  padding: 0 12px;
   background: rgba(255, 253, 250, 0.94);
   box-shadow: inset 0 0 0 1px rgba(32, 29, 26, 0.1);
 }
@@ -1489,22 +1500,73 @@ tbody td > div:not(.project-cell):not(.progress-cell) {
   top: 24px;
   border-radius: var(--radius-xl);
   background:
-    radial-gradient(circle at top right, rgba(96, 151, 138, 0.18), transparent 26%),
-    linear-gradient(180deg, rgba(31, 36, 34, 0.98) 0%, rgba(26, 31, 29, 0.98) 100%);
+    linear-gradient(180deg, rgba(233, 255, 245, 0.1) 0%, rgba(233, 255, 245, 0.02) 20%, rgba(233, 255, 245, 0) 44%),
+    radial-gradient(circle at 16% 12%, rgba(112, 198, 161, 0.16), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(74, 153, 122, 0.22), transparent 24%),
+    linear-gradient(160deg, rgba(6, 47, 36, 0.96) 0%, rgba(8, 61, 46, 0.96) 38%, rgba(15, 90, 69, 0.94) 100%);
   color: #f7f2e9;
   padding: 26px 24px 24px;
-  box-shadow: 0 28px 54px rgba(26, 24, 20, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(237, 255, 247, 0.18),
+    inset 0 0 0 1px var(--accent-glass-line),
+    0 28px 54px rgba(6, 47, 36, 0.26);
+  backdrop-filter: blur(16px) saturate(122%);
+  -webkit-backdrop-filter: blur(16px) saturate(122%);
 }
 
 .detail-header {
   padding-bottom: 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(219, 247, 235, 0.12);
+}
+
+.detail-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .detail-kicker {
   font-size: 12px;
-  margin-bottom: 8px;
   color: rgba(247, 242, 233, 0.62);
+}
+
+.detail-export-button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, rgba(233, 255, 245, 0.14) 0%, rgba(233, 255, 245, 0.04) 100%);
+  color: rgba(242, 250, 246, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(241, 255, 249, 0.14),
+    inset 0 0 0 1px rgba(220, 248, 236, 0.12);
+  backdrop-filter: blur(10px) saturate(118%);
+  -webkit-backdrop-filter: blur(10px) saturate(118%);
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.detail-export-button:hover {
+  transform: translateY(-1px);
+  background:
+    linear-gradient(180deg, rgba(233, 255, 245, 0.18) 0%, rgba(233, 255, 245, 0.06) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(244, 255, 250, 0.16),
+    inset 0 0 0 1px rgba(226, 249, 239, 0.16),
+    0 8px 18px rgba(6, 47, 36, 0.18);
+  color: #f7fdf9;
+}
+
+.detail-export-button svg,
+.detail-export-button i {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.1;
 }
 
 .detail-header h2 {
@@ -1516,20 +1578,8 @@ tbody td > div:not(.project-cell):not(.progress-cell) {
 .detail-summary {
   font-size: 14px;
   line-height: 1.6;
-  color: rgba(247, 242, 233, 0.7);
+  color: rgba(237, 247, 241, 0.72);
   margin-bottom: 16px;
-}
-
-.detail-badge {
-  display: inline-flex;
-  min-height: 28px;
-  align-items: center;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff8ef;
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .detail-progress,
@@ -1537,16 +1587,35 @@ tbody td > div:not(.project-cell):not(.progress-cell) {
   padding-top: 20px;
 }
 
+.detail-progress .progress-track.large {
+  height: 12px;
+  background:
+    linear-gradient(180deg, rgba(215, 234, 226, 0.11) 0%, rgba(215, 234, 226, 0.05) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(235, 248, 242, 0.06),
+    inset 0 0 0 1px rgba(195, 223, 211, 0.08);
+}
+
+.detail-progress .progress-track.large span {
+  background:
+    linear-gradient(180deg, rgba(233, 246, 240, 0.14) 0%, rgba(233, 246, 240, 0) 46%),
+    linear-gradient(90deg, #1b6a52 0%, #2d7c63 52%, #5c9b83 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(240, 248, 244, 0.12),
+    0 0 10px rgba(27, 106, 82, 0.12);
+}
+
 .detail-facts {
   display: grid;
-  gap: 16px;
-  margin: 20px 0 0;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 18px 0 0;
 }
 
 dt {
   font-size: 12px;
   margin-bottom: 6px;
-  color: rgba(247, 242, 233, 0.56);
+  color: rgba(226, 243, 235, 0.58);
 }
 
 dd {
@@ -1556,7 +1625,7 @@ dd {
 }
 
 .insight-strip {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(219, 247, 235, 0.12);
 }
 
 .insight-strip p {

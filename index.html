@@ -277,12 +277,22 @@
 
           <aside class="detail-panel">
             <div class="detail-header">
-              <p class="detail-kicker">Active project</p>
+              <div class="detail-header-top">
+                <p class="detail-kicker">Project Brief</p>
+                <button
+                  class="detail-export-button"
+                  id="detail-export-button"
+                  type="button"
+                  aria-label="Export brief"
+                  title="Export brief"
+                >
+                  <i data-lucide="download"></i>
+                </button>
+              </div>
               <h2 id="detail-title">AI Customer Service Upgrade</h2>
               <p class="detail-summary" id="detail-summary">
                 Customer service project for omnichannel automation rollout
               </p>
-              <span class="detail-badge">Important</span>
             </div>
 
             <div class="detail-progress">
@@ -296,10 +306,6 @@
             </div>
 
             <dl class="detail-facts">
-              <div>
-                <dt>Status</dt>
-                <dd id="detail-status">Delayed</dd>
-              </div>
               <div>
                 <dt>Schedule</dt>
                 <dd id="detail-date">2024-01-01 to 2024-04-15</dd>

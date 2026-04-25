@@ -81,10 +81,8 @@ const modeButtons = document.querySelectorAll(".mode-button[data-mode]");
 const detailEls = {
   title: document.getElementById("detail-title"),
   summary: document.getElementById("detail-summary"),
-  badge: document.querySelector(".detail-badge"),
   progressText: document.getElementById("detail-progress-text"),
   progressBar: document.getElementById("detail-progress-bar"),
-  status: document.getElementById("detail-status"),
   date: document.getElementById("detail-date"),
   focus: document.getElementById("detail-focus"),
 };
@@ -422,23 +420,10 @@ function renderProgressCell(project) {
 function applyProjectToDetail(project) {
   detailEls.title.textContent = project.name;
   detailEls.summary.textContent = project.summary;
-  detailEls.badge.textContent = project.level;
   detailEls.progressText.textContent = `${project.progress}%`;
   detailEls.progressBar.style.width = `${project.progress}%`;
-  detailEls.status.textContent = project.status;
   detailEls.date.textContent = `${project.startDate} to ${project.endDate}`;
   detailEls.focus.textContent = project.focus;
-
-  if (project.level === "N" || project.level === "R") {
-    detailEls.badge.style.background = "rgba(255, 255, 255, 0.08)";
-    detailEls.badge.style.color = "#F7F2E9";
-  } else if (project.level === "K") {
-    detailEls.badge.style.background = "rgba(214, 174, 84, 0.18)";
-    detailEls.badge.style.color = "#FFE7A3";
-  } else {
-    detailEls.badge.style.background = "rgba(187, 90, 60, 0.18)";
-    detailEls.badge.style.color = "#FFD7CA";
-  }
 }
 
 function clampProgress(value) {
@@ -609,14 +594,10 @@ function syncDetailPanel() {
   if (!projects.length) {
     detailEls.title.textContent = "No project selected";
     detailEls.summary.textContent = "Create a project to populate the project brief.";
-    detailEls.badge.textContent = "--";
     detailEls.progressText.textContent = "0%";
     detailEls.progressBar.style.width = "0%";
-    detailEls.status.textContent = "--";
     detailEls.date.textContent = "--";
     detailEls.focus.textContent = "新增项目后，这里会显示当前项目的重点说明。";
-    detailEls.badge.style.background = "rgba(255, 255, 255, 0.1)";
-    detailEls.badge.style.color = "#fff8ef";
     return;
   }
 
