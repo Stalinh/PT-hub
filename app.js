@@ -77,6 +77,7 @@ const newIslandPanel = document.getElementById("new-island-panel");
 const newIslandClose = document.getElementById("new-island-close");
 const newProjectInput = document.getElementById("new-project-input");
 const newProjectSubmit = document.getElementById("new-project-submit");
+const modeButtons = document.querySelectorAll(".mode-button[data-mode]");
 const detailEls = {
   title: document.getElementById("detail-title"),
   summary: document.getElementById("detail-summary"),
@@ -90,8 +91,21 @@ const detailEls = {
 
 const SIDEBAR_STORAGE_KEY = "pt-hub-sidebar-collapsed";
 const VIEW_STORAGE_KEY = "pt-hub-active-view";
+const TABLE_MODE_STORAGE_KEY = "pt-hub-table-mode";
+const LEVEL_OPTIONS = ["V", "K", "R", "N"];
+const STATUS_OPTIONS = ["in design", "installing", "installed", "finished"];
+let nextProjectId = 1;
 let copiedProjectName = null;
-let selectedProjectName = projects[0].name;
+let selectedProjectId = null;
+let currentTableMode = readTableMode();
+let activeEditCell = null;
+
+projects.forEach((project, index) => {
+  project.id = index + 1;
+});
+
+nextProjectId = projects.length + 1;
+selectedProjectId = projects[0]?.id || null;
 
 function readSidebarState() {
   try {
@@ -125,6 +139,22 @@ function persistActiveView(view) {
   }
 }
 
+function readTableMode() {
+  try {
+    return window.localStorage.getItem(TABLE_MODE_STORAGE_KEY) || "read";
+  } catch (_error) {
+    return "read";
+  }
+}
+
+function persistTableMode(mode) {
+  try {
+    window.localStorage.setItem(TABLE_MODE_STORAGE_KEY, mode);
+  } catch (_error) {
+    // Ignore storage failures in restricted file:// contexts.
+  }
+}
+
 function levelClass(level) {
   return `level-${level.toLowerCase()}`;
 }
@@ -136,48 +166,377 @@ function statusClass(status) {
   return "status-installed";
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderTextInput(project, field, label, extraClass = "") {
+  const className = ["cell-input", extraClass].filter(Boolean).join(" ");
+
+  return `
+    <input
+      class="${className}"
+      type="text"
+      value="${escapeHtml(project[field])}"
+      data-field="${field}"
+      aria-label="${escapeHtml(label)}"
+    />
+  `;
+}
+
+function renderSelect(project, field, options, label) {
+  const optionMarkup = options
+    .map(
+      (option) => `
+        <option value="${escapeHtml(option)}" ${project[field] === option ? "selected" : ""}>
+          ${escapeHtml(option)}
+        </option>
+      `
+    )
+    .join("");
+
+  return `
+    <select class="cell-select" data-field="${field}" aria-label="${escapeHtml(label)}">
+      ${optionMarkup}
+    </select>
+  `;
+}
+
+function renderProgressInput(project) {
+  return `
+    <label class="progress-editor" aria-label="Edit project progress">
+      <input
+        class="cell-input progress-input"
+        type="number"
+        min="0"
+        max="100"
+        step="1"
+        value="${project.progress}"
+        data-field="progress"
+      />
+      <span>%</span>
+    </label>
+  `;
+}
+
+function isEditingCell(projectId, field) {
+  return activeEditCell?.projectId === projectId && activeEditCell?.field === field;
+}
+
+function renderEditableShell(project, field, label, content, extraClass = "") {
+  const className = ["editable-shell", extraClass].filter(Boolean).join(" ");
+
+  return `
+    <button
+      class="${className}"
+      type="button"
+      data-editable="true"
+      data-project-id="${project.id}"
+      data-field="${field}"
+      aria-label="${escapeHtml(label)}"
+    >
+      ${content}
+    </button>
+  `;
+}
+
+function renderProjectCell(project) {
+  const projectNameMarkup = isEditingCell(project.id, "name")
+    ? renderTextInput(project, "name", "Project name")
+    : renderEditableShell(
+        project,
+        "name",
+        "Edit project name",
+        `<div class="project-name">${escapeHtml(project.name)}</div>`,
+        "editable-shell-text"
+      );
+
+  if (currentTableMode === "edit") {
+    return `
+      <div class="project-cell">
+        <div class="copy-anchor">
+          <button class="copy-button" type="button" aria-label="Copy project name">
+            <i data-lucide="${copiedProjectName === project.name ? "check" : "copy"}"></i>
+          </button>
+        </div>
+        <div>
+          ${projectNameMarkup}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="project-cell">
+      <div class="copy-anchor">
+        <button class="copy-button" type="button" aria-label="Copy project name">
+          <i data-lucide="${copiedProjectName === project.name ? "check" : "copy"}"></i>
+        </button>
+      </div>
+      <div>
+        <div class="project-name">${escapeHtml(project.name)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLevelCell(project) {
+  if (isEditingCell(project.id, "level")) {
+    return renderSelect(project, "level", LEVEL_OPTIONS, "Project level");
+  }
+
+  const content = `<span class="pill ${levelClass(project.level)}">${escapeHtml(project.level)}</span>`;
+
+  if (currentTableMode === "edit") {
+    return renderEditableShell(project, "level", "Edit project level", content);
+  }
+
+  return content;
+}
+
+function renderStatusCell(project) {
+  if (isEditingCell(project.id, "status")) {
+    return renderSelect(project, "status", STATUS_OPTIONS, "Project status");
+  }
+
+  const content = `<span class="status ${statusClass(project.status)}">${escapeHtml(project.status)}</span>`;
+
+  if (currentTableMode === "edit") {
+    return renderEditableShell(project, "status", "Edit project status", content);
+  }
+
+  return content;
+}
+
+function renderProgressCell(project) {
+  if (isEditingCell(project.id, "progress")) {
+    return renderProgressInput(project);
+  }
+
+  const content = `
+    <div class="progress-cell">
+      <div class="progress-track"><span style="width: ${project.progress}%"></span></div>
+      <strong>${project.progress}%</strong>
+    </div>
+  `;
+
+  if (currentTableMode === "edit") {
+    return renderEditableShell(project, "progress", "Edit project progress", content);
+  }
+
+  return content;
+}
+
+function applyProjectToDetail(project) {
+  detailEls.title.textContent = project.name;
+  detailEls.summary.textContent = project.summary;
+  detailEls.badge.textContent = project.level;
+  detailEls.progressText.textContent = `${project.progress}%`;
+  detailEls.progressBar.style.width = `${project.progress}%`;
+  detailEls.status.textContent = project.status;
+  detailEls.date.textContent = `${project.startDate} to ${project.endDate}`;
+  detailEls.focus.textContent = project.focus;
+
+  if (project.level === "N" || project.level === "R") {
+    detailEls.badge.style.background = "rgba(255, 255, 255, 0.08)";
+    detailEls.badge.style.color = "#F7F2E9";
+  } else if (project.level === "K") {
+    detailEls.badge.style.background = "rgba(214, 174, 84, 0.18)";
+    detailEls.badge.style.color = "#FFE7A3";
+  } else {
+    detailEls.badge.style.background = "rgba(187, 90, 60, 0.18)";
+    detailEls.badge.style.color = "#FFD7CA";
+  }
+}
+
+function clampProgress(value) {
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) return 0;
+  return Math.min(100, Math.max(0, parsed));
+}
+
+function updateProjectField(projectId, field, value) {
+  const project = projects.find((item) => item.id === projectId);
+  if (!project) return;
+
+  if (field === "progress") {
+    project.progress = clampProgress(value);
+  } else {
+    project[field] = value;
+  }
+
+  if (project.id === selectedProjectId) {
+    applyProjectToDetail(project);
+  }
+}
+
+function startCellEdit(projectId, field) {
+  activeEditCell = { projectId, field };
+  renderRows();
+  syncDetailPanel();
+
+  window.requestAnimationFrame(() => {
+    const activeControl = tableBody.querySelector(
+      `tr[data-project-id="${projectId}"] [data-field="${field}"]`
+    );
+    activeControl?.focus();
+    if (activeControl?.select) activeControl.select();
+  });
+}
+
+function stopCellEdit() {
+  if (!activeEditCell) return;
+  activeEditCell = null;
+  renderRows();
+  syncDetailPanel();
+}
+
+function bindEditableCellEvents(row, project) {
+  row.querySelectorAll("[data-editable='true']").forEach((control) => {
+    control.addEventListener("click", (event) => {
+      event.stopPropagation();
+      startCellEdit(project.id, control.dataset.field);
+    });
+  });
+
+  row.querySelectorAll("input, select").forEach((control) => {
+    control.addEventListener("click", (event) => event.stopPropagation());
+    control.addEventListener("keydown", (event) => {
+      event.stopPropagation();
+
+      if (event.key === "Enter" && control.tagName !== "SELECT") {
+        event.preventDefault();
+        stopCellEdit();
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        stopCellEdit();
+      }
+    });
+
+    const eventName = control.tagName === "SELECT" ? "change" : "input";
+    control.addEventListener(eventName, (event) => {
+      const { field } = event.currentTarget.dataset;
+      if (!field) return;
+
+      const nextValue =
+        field === "progress"
+          ? clampProgress(event.currentTarget.value)
+          : event.currentTarget.value;
+
+      if (field === "progress") {
+        event.currentTarget.value = nextValue;
+      }
+
+      updateProjectField(project.id, field, nextValue);
+
+      if (event.currentTarget.tagName === "SELECT") {
+        stopCellEdit();
+      }
+    });
+
+    control.addEventListener("blur", () => {
+      window.setTimeout(() => {
+        if (document.activeElement !== control) {
+          stopCellEdit();
+        }
+      }, 0);
+    });
+  });
+}
+
 function renderRows() {
   tableBody.innerHTML = "";
 
   projects.forEach((project) => {
     const row = document.createElement("tr");
-    if (project.name === selectedProjectName) row.classList.add("selected");
+    row.dataset.projectId = String(project.id);
+    if (project.id === selectedProjectId) row.classList.add("selected");
 
     row.innerHTML = `
+      <td>${renderProjectCell(project)}</td>
+      <td>${renderLevelCell(project)}</td>
+      <td>${renderStatusCell(project)}</td>
+      <td>${renderProgressCell(project)}</td>
+      <td>${
+        isEditingCell(project.id, "projectNo")
+          ? renderTextInput(project, "projectNo", "Project number", "compact-input")
+          : currentTableMode === "edit"
+            ? renderEditableShell(
+                project,
+                "projectNo",
+                "Edit project number",
+                `<span class="project-code">${escapeHtml(project.projectNo)}</span>`
+              )
+            : `<span class="project-code">${escapeHtml(project.projectNo)}</span>`
+      }</td>
+      <td>${
+        isEditingCell(project.id, "contractNo")
+          ? renderTextInput(project, "contractNo", "Contract number", "compact-input")
+          : currentTableMode === "edit"
+            ? renderEditableShell(
+                project,
+                "contractNo",
+                "Edit contract number",
+                `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
+              )
+            : `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
+      }</td>
       <td>
-        <div class="project-cell">
-          <div class="copy-anchor">
-            <button class="copy-button" type="button" aria-label="Copy project name">
-              <i data-lucide="${copiedProjectName === project.name ? "check" : "copy"}"></i>
-            </button>
-          </div>
-          <div>
-            <div class="project-name">${project.name}</div>
-          </div>
-        </div>
+        <button class="row-delete-button" type="button" aria-label="Delete ${escapeHtml(project.name)}">
+          <i data-lucide="trash-2"></i>
+        </button>
       </td>
-      <td><span class="pill ${levelClass(project.level)}">${project.level}</span></td>
-      <td><span class="status ${statusClass(project.status)}">${project.status}</span></td>
-      <td>
-        <div class="progress-cell">
-          <div class="progress-track"><span style="width: ${project.progress}%"></span></div>
-          <strong>${project.progress}%</strong>
-        </div>
-      </td>
-      <td><span class="project-code">${project.projectNo}</span></td>
-      <td><span class="project-code">${project.contractNo}</span></td>
     `;
 
     row.addEventListener("click", () => selectProject(project, row));
+    const deleteButton = row.querySelector(".row-delete-button");
     const copyButton = row.querySelector(".copy-button");
-    copyButton.addEventListener("click", async (event) => {
+
+    if (copyButton) {
+      copyButton.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        await copyProjectName(project.name);
+      });
+    }
+
+    deleteButton.addEventListener("click", (event) => {
       event.stopPropagation();
-      await copyProjectName(project.name);
+      deleteProject(project.id);
     });
+
+    if (currentTableMode === "edit") {
+      bindEditableCellEvents(row, project);
+    }
+
     tableBody.appendChild(row);
   });
 
   lucide.createIcons();
+}
+
+function syncDetailPanel() {
+  if (!projects.length) {
+    detailEls.title.textContent = "No project selected";
+    detailEls.summary.textContent = "Create a project to populate the project brief.";
+    detailEls.badge.textContent = "--";
+    detailEls.progressText.textContent = "0%";
+    detailEls.progressBar.style.width = "0%";
+    detailEls.status.textContent = "--";
+    detailEls.date.textContent = "--";
+    detailEls.focus.textContent = "新增项目后，这里会显示当前项目的重点说明。";
+    detailEls.badge.style.background = "rgba(255, 255, 255, 0.1)";
+    detailEls.badge.style.color = "#fff8ef";
+    return;
+  }
+
+  restoreSelectedRow();
 }
 
 async function copyProjectName(name) {
@@ -208,41 +567,34 @@ async function copyProjectName(name) {
 }
 
 function selectProject(project, row) {
-  selectedProjectName = project.name;
+  selectedProjectId = project.id;
   document.querySelectorAll("tbody tr").forEach((tr) => tr.classList.remove("selected"));
   row.classList.add("selected");
-
-  detailEls.title.textContent = project.name;
-  detailEls.summary.textContent = project.summary;
-  detailEls.badge.textContent = project.level;
-  detailEls.progressText.textContent = `${project.progress}%`;
-  detailEls.progressBar.style.width = `${project.progress}%`;
-  detailEls.status.textContent = project.status;
-  detailEls.date.textContent = `${project.startDate} to ${project.endDate}`;
-  detailEls.focus.textContent = project.focus;
-
-  if (project.level === "N" || project.level === "R") {
-    detailEls.badge.style.background = "rgba(255, 255, 255, 0.08)";
-    detailEls.badge.style.color = "#F7F2E9";
-  } else if (project.level === "K") {
-    detailEls.badge.style.background = "rgba(214, 174, 84, 0.18)";
-    detailEls.badge.style.color = "#FFE7A3";
-  } else {
-    detailEls.badge.style.background = "rgba(187, 90, 60, 0.18)";
-    detailEls.badge.style.color = "#FFD7CA";
-  }
+  applyProjectToDetail(project);
 }
 
 function restoreSelectedRow() {
-  const activeProject =
-    projects.find((project) => project.name === selectedProjectName) || projects[0];
-  const activeRow = Array.from(document.querySelectorAll("tbody tr")).find(
-    (row) => row.querySelector(".project-name")?.textContent === activeProject.name
-  );
+  const activeProject = projects.find((project) => project.id === selectedProjectId) || projects[0];
+  if (!activeProject) return;
+  const activeRow = document.querySelector(`tbody tr[data-project-id="${activeProject.id}"]`);
 
   if (activeRow) {
     selectProject(activeProject, activeRow);
   }
+}
+
+function deleteProject(projectId) {
+  const index = projects.findIndex((project) => project.id === projectId);
+  if (index === -1) return;
+
+  projects.splice(index, 1);
+
+  if (selectedProjectId === projectId) {
+    selectedProjectId = projects[0]?.id || null;
+  }
+
+  renderRows();
+  syncDetailPanel();
 }
 
 function setActiveView(view) {
@@ -287,6 +639,7 @@ function setNewIslandOpen(open) {
 function createProjectDraft(name) {
   const nextIndex = projects.length + 1;
   const project = {
+    id: nextProjectId++,
     name,
     summary: "New project draft ready for scope definition",
     focus: "补充项目目标、负责人和关键里程碑后，再进入正式执行。",
@@ -301,9 +654,9 @@ function createProjectDraft(name) {
   };
 
   projects.unshift(project);
-  selectedProjectName = project.name;
+  selectedProjectId = project.id;
   renderRows();
-  restoreSelectedRow();
+  syncDetailPanel();
   setNewIslandOpen(false);
 }
 
@@ -376,8 +729,34 @@ function initSidebarToggle() {
   });
 }
 
+function setTableMode(mode) {
+  currentTableMode = mode === "edit" ? "edit" : "read";
+  if (currentTableMode !== "edit") activeEditCell = null;
+
+  modeButtons.forEach((button) => {
+    const active = button.dataset.mode === currentTableMode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  persistTableMode(currentTableMode);
+  renderRows();
+  syncDetailPanel();
+}
+
+function initTableModeToggle() {
+  modeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setTableMode(button.dataset.mode);
+    });
+  });
+
+  setTableMode(currentTableMode);
+}
+
 renderRows();
 restoreSelectedRow();
 initSidebarToggle();
 initNavigation();
 initNewIsland();
+initTableModeToggle();
