@@ -1275,9 +1275,12 @@ tbody tr.selected {
 .floating-choice-menu {
   position: fixed;
   z-index: 9999;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 24px));
 }
 
 .choice-menu {
+  width: max-content;
   padding: 5px;
   border-radius: 16px;
   display: grid;
@@ -1289,7 +1292,7 @@ tbody tr.selected {
 }
 
 .choice-option {
-  width: 100%;
+  width: auto;
   min-height: 42px;
   padding: 4px 5px;
   border: 0;

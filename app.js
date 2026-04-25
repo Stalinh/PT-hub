@@ -274,10 +274,8 @@ function updateFloatingChoiceMenu() {
   floatingChoiceMenu.innerHTML = `<div class="choice-menu">${optionMarkup}</div>`;
 
   const rect = trigger.getBoundingClientRect();
-  const minWidth = Math.max(rect.width, 168);
   const viewportPadding = 12;
-
-  floatingChoiceMenu.style.minWidth = `${minWidth}px`;
+  floatingChoiceMenu.style.minWidth = "0px";
   floatingChoiceMenu.style.top = "0px";
   floatingChoiceMenu.style.left = "0px";
   floatingChoiceMenu.hidden = false;
