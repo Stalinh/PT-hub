@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PT Hub Project Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">PT</div>
+          <div class="brand-text">
+            <div class="brand-name">PT Hub</div>
+            <div class="brand-subtitle">Project operations workspace</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item" data-view="dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Project Dashboard</span>
+          </button>
+          <button class="nav-item active" data-view="projects">
+            <i data-lucide="folder-open"></i>
+            <span>Project Overview</span>
+          </button>
+          <button class="nav-item" data-view="tasks">
+            <i data-lucide="list-checks"></i>
+            <span>Project Tasks</span>
+          </button>
+          <button class="nav-item" data-view="delivery">
+            <i data-lucide="calendar"></i>
+            <span>Project Delivery</span>
+          </button>
+          <button class="nav-item" data-view="archive">
+            <i data-lucide="archive"></i>
+            <span>Project Archive</span>
+          </button>
+          <button class="nav-item" data-view="test">
+            <i data-lucide="swatches"></i>
+            <span>Test Page</span>
+          </button>
+        </nav>
+
+        <section class="sidebar-section">
+          <div class="section-caption">Project Focus</div>
+          <div class="focus-stack">
+            <div class="focus-card">
+              <span class="focus-label">Projects Needing Attention</span>
+              <strong>4 projects</strong>
+            </div>
+            <div class="focus-card muted">
+              <span class="focus-label">Project Capacity Window</span>
+              <strong>Tuesday 14:00</strong>
+            </div>
+          </div>
+        </section>
+
+        <div class="sidebar-footer">
+          <div class="status-dot"></div>
+          <div>
+            <div class="footer-label">System Status</div>
+            <div class="footer-value">All services normal</div>
+          </div>
+        </div>
+      </aside>
+
+      <button
+        class="sidebar-toggle"
+        id="sidebar-toggle"
+        type="button"
+        aria-label="Collapse sidebar"
+        aria-expanded="true"
+      >
+        <i data-lucide="chevrons-left"></i>
+      </button>
+
+      <main class="workspace">
+        <section class="app-page" data-page="dashboard">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Project workspace</p>
+              <h1>Project Dashboard</h1>
+              <p class="page-copy">
+                用于汇总项目健康度、项目风险分布与本周需要推进的关键项目动作。
+              </p>
+            </div>
+
+            <div class="header-actions">
+              <div class="header-chip">
+                <i data-lucide="calendar-days"></i>
+                <span>Week 17 review</span>
+              </div>
+            </div>
+          </header>
+
+          <section class="overview-band">
+            <section class="overview-hero">
+              <div class="hero-copy">
+                <p class="hero-label">Project health</p>
+                <h2>项目推进节奏稳定，但重点项目仍需更早识别和处理风险。</h2>
+                <p>
+                  当前活跃项目 18 个，平均完成度 64%。延期风险主要集中在 AI
+                  客服升级与 ERP 重构，建议围绕关键项目把跨团队依赖提前到周会前收敛。
+                </p>
+              </div>
+
+              <div class="hero-actions">
+                <button class="hero-button primary">
+                  <i data-lucide="arrow-up-right"></i>
+                  <span>Open Weekly Review</span>
+                </button>
+                <button class="hero-button secondary">
+                  <i data-lucide="bell-ring"></i>
+                  <span>Notify Owners</span>
+                </button>
+              </div>
+
+              <div class="hero-points">
+                <div>
+                  <span>Project blockers</span>
+                  <strong>7</strong>
+                </div>
+                <div>
+                  <span>Project deadlines</span>
+                  <strong>3 this week</strong>
+                </div>
+                <div>
+                  <span>Avg. project confidence</span>
+                  <strong>High</strong>
+                </div>
+              </div>
+            </section>
+
+            <aside class="overview-side">
+              <div class="spotlight-card">
+                <div class="spotlight-head">
+                  <span class="section-caption">This week</span>
+                  <i data-lucide="activity"></i>
+                </div>
+                <div class="spotlight-number">86%</div>
+                <p>项目执行率保持在健康区间，关键项目的测试与发布节奏平稳。</p>
+              </div>
+
+              <div class="mini-grid">
+                <article class="mini-stat">
+                  <span>Review queue</span>
+                  <strong>12 items</strong>
+                </article>
+                <article class="mini-stat">
+                  <span>Escalations</span>
+                  <strong>2 opened</strong>
+                </article>
+              </div>
+            </aside>
+          </section>
+
+          <section class="summary-strip" aria-label="project summary">
+            <article class="metric accent">
+              <div class="metric-label">Active Projects</div>
+              <div class="metric-value">18</div>
+              <div class="metric-note up">+3 this month</div>
+            </article>
+            <article class="metric">
+              <div class="metric-label">At Risk</div>
+              <div class="metric-value">4</div>
+              <div class="metric-note warn">Needs review today</div>
+            </article>
+            <article class="metric">
+              <div class="metric-label">Project Tasks Closed</div>
+              <div class="metric-value">642</div>
+              <div class="metric-note up">86% avg. completion</div>
+            </article>
+            <article class="metric">
+              <div class="metric-label">Project Team Utilization</div>
+              <div class="metric-value">74%</div>
+              <div class="metric-note">Balanced workload</div>
+            </article>
+          </section>
+        </section>
+
+        <section class="app-page active" data-page="projects">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Project workspace</p>
+              <h1>Project Overview</h1>
+              <p class="page-copy">
+                面向项目执行的主工作台，聚焦项目列表浏览、快速复制与项目详情联动。
+              </p>
+            </div>
+          </header>
+
+          <section class="content-grid">
+          <section class="main-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Project List</h3>
+              </div>
+              <div class="new-island" id="new-island">
+                <button class="new-trigger" id="new-trigger" type="button" aria-expanded="false">
+                  <span>+NEW</span>
+                </button>
+                <div class="new-island-panel" id="new-island-panel" aria-hidden="true">
+                  <div class="new-island-pill">
+                    <label class="new-island-input-wrap" for="new-project-input">
+                      <i data-lucide="plus"></i>
+                      <input
+                        id="new-project-input"
+                        class="new-island-input"
+                        type="text"
+                        placeholder="Type a new project name"
+                      />
+                    </label>
+                    <button
+                      class="new-island-action primary"
+                      id="new-project-submit"
+                      type="button"
+                      aria-label="Create project"
+                    >
+                      <i data-lucide="check"></i>
+                    </button>
+                    <button
+                      class="new-island-close"
+                      id="new-island-close"
+                      type="button"
+                      aria-label="Close new menu"
+                    >
+                      <i data-lucide="x"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Project No</th>
+                    <th>Contract No</th>
+                  </tr>
+                </thead>
+                <tbody id="project-table"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="detail-panel">
+            <div class="detail-header">
+              <p class="detail-kicker">Active project</p>
+              <h2 id="detail-title">AI Customer Service Upgrade</h2>
+              <p class="detail-summary" id="detail-summary">
+                Customer service project for omnichannel automation rollout
+              </p>
+              <span class="detail-badge">Important</span>
+            </div>
+
+            <div class="detail-progress">
+              <div class="detail-progress-row">
+                <span>Overall progress</span>
+                <strong id="detail-progress-text">30%</strong>
+              </div>
+              <div class="progress-track large">
+                <span id="detail-progress-bar"></span>
+              </div>
+            </div>
+
+            <dl class="detail-facts">
+              <div>
+                <dt>Status</dt>
+                <dd id="detail-status">Delayed</dd>
+              </div>
+              <div>
+                <dt>Schedule</dt>
+                <dd id="detail-date">2024-01-01 to 2024-04-15</dd>
+              </div>
+            </dl>
+
+            <section class="insight-strip">
+              <span class="section-caption">Project focus</span>
+              <p id="detail-focus">
+                优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。
+              </p>
+            </section>
+
+            <section class="team-stack">
+              <div class="section-title-row">
+                <h3>Project Team</h3>
+                <span class="mini-label">6 members</span>
+              </div>
+              <div class="avatars">
+                <span>AL</span>
+                <span>TY</span>
+                <span>JM</span>
+                <span>SK</span>
+                <span>EV</span>
+                <span>+1</span>
+              </div>
+            </section>
+            </aside>
+          </section>
+        </section>
+
+        <section class="app-page" data-page="tasks">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Project workspace</p>
+              <h1>Project Tasks</h1>
+              <p class="page-copy">当前页面预留给项目任务拆解、负责人分配与任务节奏跟踪。</p>
+            </div>
+          </header>
+          <section class="blank-panel"></section>
+        </section>
+
+        <section class="app-page" data-page="delivery">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Project workspace</p>
+              <h1>Project Delivery</h1>
+              <p class="page-copy">当前页面预留给项目里程碑、交付节点与项目排期协同。</p>
+            </div>
+          </header>
+          <section class="blank-panel"></section>
+        </section>
+
+        <section class="app-page" data-page="archive">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Project workspace</p>
+              <h1>Project Archive</h1>
+              <p class="page-copy">当前页面预留给项目归档记录、历史版本与已关闭项目检索。</p>
+            </div>
+          </header>
+          <section class="blank-panel"></section>
+        </section>
+
+        <section class="app-page" data-page="test">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Color test</p>
+              <h1>Test Page</h1>
+              <p class="page-copy">
+                这里集中对比灵动岛与右侧 project brief 的配色组合，方便直接挑选方向。
+              </p>
+            </div>
+          </header>
+
+          <section class="test-grid">
+            <article class="test-card">
+              <div class="test-card-head">
+                <div>
+                  <h3>Option A</h3>
+                  <p>Soft sage pair</p>
+                </div>
+                <span class="test-badge">Light</span>
+              </div>
+              <div class="test-preview">
+                <div class="test-island palette-a">
+                  <div class="test-input">Type a new project name</div>
+                  <div class="test-icon">+</div>
+                  <div class="test-icon">✓</div>
+                  <div class="test-icon">×</div>
+                </div>
+                <div class="test-brief palette-a">
+                  <span class="test-label">Active project</span>
+                  <h4>Smart City Data Platform</h4>
+                  <p>Data platform project for sensor streams and KPI dashboards.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="test-card">
+              <div class="test-card-head">
+                <div>
+                  <h3>Option B</h3>
+                  <p>Mist gray island + green brief</p>
+                </div>
+                <span class="test-badge">Balanced</span>
+              </div>
+              <div class="test-preview">
+                <div class="test-island palette-b">
+                  <div class="test-input">Type a new project name</div>
+                  <div class="test-icon">+</div>
+                  <div class="test-icon">✓</div>
+                  <div class="test-icon">×</div>
+                </div>
+                <div class="test-brief palette-b">
+                  <span class="test-label">Active project</span>
+                  <h4>Smart City Data Platform</h4>
+                  <p>Data platform project for sensor streams and KPI dashboards.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="test-card">
+              <div class="test-card-head">
+                <div>
+                  <h3>Option C</h3>
+                  <p>Cool gray-blue pair</p>
+                </div>
+                <span class="test-badge">Cool</span>
+              </div>
+              <div class="test-preview">
+                <div class="test-island palette-c">
+                  <div class="test-input">Type a new project name</div>
+                  <div class="test-icon">+</div>
+                  <div class="test-icon">✓</div>
+                  <div class="test-icon">×</div>
+                </div>
+                <div class="test-brief palette-c">
+                  <span class="test-label">Active project</span>
+                  <h4>Smart City Data Platform</h4>
+                  <p>Data platform project for sensor streams and KPI dashboards.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="test-card">
+              <div class="test-card-head">
+                <div>
+                  <h3>Option D</h3>
+                  <p>Warm sand-gray pair</p>
+                </div>
+                <span class="test-badge">Warm</span>
+              </div>
+              <div class="test-preview">
+                <div class="test-island palette-d">
+                  <div class="test-input">Type a new project name</div>
+                  <div class="test-icon">+</div>
+                  <div class="test-icon">✓</div>
+                  <div class="test-icon">×</div>
+                </div>
+                <div class="test-brief palette-d">
+                  <span class="test-label">Active project</span>
+                  <h4>Smart City Data Platform</h4>
+                  <p>Data platform project for sensor streams and KPI dashboards.</p>
+                </div>
+              </div>
+            </article>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
