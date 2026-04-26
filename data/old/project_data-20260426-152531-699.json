@@ -15,9 +15,9 @@
       "status": "in design",
       "progress": 30,
       "icon": "sparkles",
-      "version": 30,
+      "version": 28,
       "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:58:04.916Z"
+      "updatedAt": "2026-04-26T07:21:19.142Z"
     },
     {
       "id": 3,
@@ -53,9 +53,28 @@
       "status": "installing",
       "progress": 60,
       "icon": "network",
-      "version": 20,
+      "version": 19,
       "createdAt": "2024-03-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:25:31.691Z"
+      "updatedAt": "2026-04-26T07:25:30.387Z"
+    },
+    {
+      "id": 4,
+      "name": "Next-Gen ERP Refactoring",
+      "tasks": [
+        "推进剩余模块拆分",
+        "梳理历史流程迁移回退方案",
+        "补齐业务中断风险检查表"
+      ],
+      "remark": "模块拆分已经完成一半，下一阶段重点是降低历史流程迁移的业务中断风险。",
+      "projectNo": "PT-24003",
+      "contractNo": "CN-2024-0204",
+      "level": "K",
+      "status": "installing",
+      "progress": 45,
+      "icon": "blocks",
+      "version": 1,
+      "createdAt": "2024-02-01T00:00:00.000Z",
+      "updatedAt": "2024-02-01T00:00:00.000Z"
     },
     {
       "id": 5,
@@ -75,25 +94,6 @@
       "version": 1,
       "createdAt": "2024-01-15T00:00:00.000Z",
       "updatedAt": "2024-01-15T00:00:00.000Z"
-    },
-    {
-      "id": 4,
-      "name": "Next-Gen ERP Refactoring",
-      "tasks": [
-        "推进剩余模块拆分",
-        "梳理历史流程迁移回退方案",
-        "补齐业务中断风险检查表"
-      ],
-      "remark": "模块拆分已经完成一半，下一阶段重点是降低历史流程迁移的业务中断风险。",
-      "projectNo": "PT-24003",
-      "contractNo": "CN-2024-0204",
-      "level": "K",
-      "status": "installing",
-      "progress": 45,
-      "icon": "blocks",
-      "version": 2,
-      "createdAt": "2024-02-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:25:33.106Z"
     }
   ]
 }

@@ -259,7 +259,7 @@ function toggleTaskDone(taskId, checked) {
     null;
 
   if (activeProject) {
-    applyProjectToDetail(activeProject);
+    updateDetailTasks(activeProject);
   } else {
     renderTasksPage(null);
   }
@@ -497,7 +497,7 @@ function renderChoiceTrigger(project, field) {
 }
 
 function updateProjectField(projectId, field, value, options = {}) {
-  const { persist = true } = options;
+  const { persist = true, rerenderRow = true } = options;
   const project = state.projectData.find((item) => item.id === projectId);
   if (!project) return;
 
@@ -511,7 +511,18 @@ function updateProjectField(projectId, field, value, options = {}) {
   project.updatedAt = new Date().toISOString();
 
   if (project.id === state.selectedProjectId) {
-    applyProjectToDetail(project);
+    if (field === "name" || field === "projectNo" || field === "contractNo") {
+      updateDetailHeader(project);
+      renderTasksPage(project);
+    } else if (field === "progress") {
+      updateDetailProgress(project);
+    } else if (field === "remark") {
+      updateDetailRemark(project);
+    }
+  }
+
+  if (rerenderRow) {
+    replaceProjectRow(project.id);
   }
 
   if (persist) {
@@ -583,6 +594,7 @@ function updateFloatingChoiceMenu() {
       event.stopPropagation();
       updateProjectField(project.id, control.dataset.field, control.dataset.value, {
         persist: false,
+        rerenderRow: false,
       });
       stopCellEdit();
     });
@@ -681,31 +693,135 @@ function getActiveProject() {
   );
 }
 
-function applyProjectToDetail(project) {
-  const tasks = getProjectTasks(project.id);
-  detailEls.remark.classList.remove("detail-editable-target");
-  detailEls.remark.removeAttribute("tabindex");
-  detailEls.remark.onclick = null;
-  detailEls.title.textContent = project.name;
-  detailEls.summary.innerHTML = renderProjectMetaMarkup(project);
+function syncSelectedRow(projectId = state.selectedProjectId) {
+  const nextId = projectId == null ? null : String(projectId);
+  document.querySelectorAll("tbody tr").forEach((tr) => {
+    tr.classList.toggle("selected", tr.dataset.projectId === nextId);
+  });
+}
+
+function updateDetailHeaderActions(project) {
   if (detailCopyButton) {
     detailCopyButton.setAttribute("aria-label", `Copy ${project.name}`);
     detailCopyButton.setAttribute("title", `Copy ${project.name}`);
     detailCopyButton.innerHTML = `<i data-lucide="${state.copiedProjectName === project.name ? "check" : "copy"}"></i>`;
   }
+
   if (detailExportButton) {
     detailExportButton.setAttribute("aria-label", `Export ${project.name}`);
     detailExportButton.setAttribute("title", `Export ${project.name}`);
     detailExportButton.innerHTML = `<i data-lucide="${state.exportedProjectId === project.id ? "check" : "download"}"></i>`;
   }
+}
+
+function updateDetailHeader(project) {
+  detailEls.title.textContent = project.name;
+  detailEls.summary.innerHTML = renderProjectMetaMarkup(project);
+  updateDetailHeaderActions(project);
+  window.lucide.createIcons();
+}
+
+function updateDetailProgress(project) {
   detailEls.progressText.textContent = `${project.progress}%`;
   detailEls.progressBar.style.width = `${project.progress}%`;
-  detailEls.tasks.innerHTML = renderTaskListMarkup(tasks.length ? tasks : project.tasks);
+}
+
+function bindDetailRemarkEditor(project) {
+  if (state.currentTableMode !== "edit") return;
+
+  detailEls.remark.classList.add("detail-editable-target");
+  detailEls.remark.tabIndex = 0;
+  detailEls.remark.onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openDetailTextEditor(detailEls.remark, {
+      value: project.remark,
+      multiline: true,
+      className: "detail-inline-copy",
+      onCommit: (nextValue) => {
+        updateProjectField(project.id, "remark", nextValue);
+      },
+      onCancel: () => updateDetailRemark(project),
+    });
+  };
+  detailEls.remark.onkeydown = (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    detailEls.remark.click();
+  };
+}
+
+function updateDetailRemark(project) {
+  detailEls.remark.classList.remove("detail-editable-target");
+  detailEls.remark.removeAttribute("tabindex");
+  detailEls.remark.onclick = null;
+  detailEls.remark.onkeydown = null;
   detailEls.remark.textContent = project.remark;
+  bindDetailRemarkEditor(project);
+}
+
+function bindDetailTaskEditors(project) {
+  if (state.currentTableMode !== "edit") return;
+
+  detailEls.tasks.querySelectorAll("[data-detail-editable='taskTitle']").forEach((node) => {
+    node.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const taskId = Number.parseInt(node.dataset.taskId, 10);
+      if (Number.isNaN(taskId)) return;
+      startDetailTaskEdit(taskId);
+    };
+
+    node.onkeydown = (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      node.click();
+    };
+  });
+
+  detailEls.tasks.querySelectorAll("[data-detail-task-input='true']").forEach((input) => {
+    input.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    input.addEventListener("keydown", (event) => {
+      event.stopPropagation();
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        stopDetailTaskEdit();
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        stopDetailTaskEdit({ commit: false });
+      }
+    });
+
+    input.addEventListener("focusout", (event) => {
+      if (!state.activeDetailTaskEdit) return;
+      if (!event.relatedTarget) return;
+      if (input.contains(event.relatedTarget)) return;
+      stopDetailTaskEdit();
+    });
+  });
+}
+
+function updateDetailTasks(project) {
+  const tasks = getProjectTasks(project.id);
+  detailEls.tasks.innerHTML = renderTaskListMarkup(tasks.length ? tasks : project.tasks);
   renderTasksPage(project);
   bindTaskCheckboxes();
-  bindDetailEditors(project);
-  window.lucide.createIcons();
+  bindDetailTaskEditors(project);
+}
+
+function applyProjectToDetail(project) {
+  updateDetailHeader(project);
+  updateDetailProgress(project);
+  updateDetailTasks(project);
+  updateDetailRemark(project);
 }
 
 function closeActiveDetailEditor(options = {}) {
@@ -744,7 +860,7 @@ function startDetailTaskEdit(taskId) {
     originalValue: task.title,
   };
 
-  applyProjectToDetail(project);
+  updateDetailTasks(project);
 
   window.requestAnimationFrame(() => {
     const input = detailEls.tasks.querySelector(
@@ -776,7 +892,7 @@ function stopDetailTaskEdit(options = {}) {
   state.activeDetailTaskEdit = null;
 
   if (project) {
-    applyProjectToDetail(project);
+    updateDetailTasks(project);
   }
 
   if (commit && changed) {
@@ -883,108 +999,25 @@ function openDetailTextEditor(element, options) {
   });
 }
 
-function bindDetailEditors(project) {
-  if (state.currentTableMode !== "edit") return;
-
-  const attachTextEditor = (element, options) => {
-    if (!element) return;
-
-    element.classList.add("detail-editable-target");
-    element.tabIndex = 0;
-    element.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      openDetailTextEditor(element, options());
-    };
-    element.onkeydown = (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      element.click();
-    };
-  };
-
-  attachTextEditor(detailEls.remark, () => ({
-    value: project.remark,
-    multiline: true,
-    className: "detail-inline-copy",
-    onCommit: (nextValue) => {
-      updateProjectField(project.id, "remark", nextValue);
-      renderRows();
-      syncDetailPanel();
-    },
-    onCancel: () => applyProjectToDetail(project),
-  }));
-
-  detailEls.tasks.querySelectorAll("[data-detail-editable='taskTitle']").forEach((node) => {
-    node.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const taskId = Number.parseInt(node.dataset.taskId, 10);
-      if (Number.isNaN(taskId)) return;
-      startDetailTaskEdit(taskId);
-    };
-
-    node.onkeydown = (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      node.click();
-    };
-  });
-
-  detailEls.tasks.querySelectorAll("[data-detail-task-input='true']").forEach((input) => {
-    input.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-
-    input.addEventListener("keydown", (event) => {
-      event.stopPropagation();
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        stopDetailTaskEdit();
-        return;
-      }
-
-      if (event.key === "Escape") {
-        event.preventDefault();
-        stopDetailTaskEdit({ commit: false });
-      }
-    });
-
-    input.addEventListener("focusout", (event) => {
-      if (!state.activeDetailTaskEdit) return;
-      if (!event.relatedTarget) return;
-      if (input.contains(event.relatedTarget)) return;
-      stopDetailTaskEdit();
-    });
-  });
-}
-
 function startCellEdit(projectId, field) {
   state.activeEditCell = { projectId, field };
   state.editSessionDirty = false;
-  renderRows();
-  syncDetailPanel();
+  replaceProjectRow(projectId);
   updateFloatingChoiceMenu();
 
   window.requestAnimationFrame(() => {
-    const activeControl = tableBody.querySelector(
-      `tr[data-project-id="${projectId}"] [data-field="${field}"]`
-    );
-    activeControl?.focus();
-    if (activeControl?.select) activeControl.select();
+    focusActiveCellControl();
   });
 }
 
 function stopCellEdit() {
   if (!state.activeEditCell) return;
+  const projectId = state.activeEditCell.projectId;
   const shouldPersist = state.editSessionDirty;
   state.activeEditCell = null;
   state.editSessionDirty = false;
   updateFloatingChoiceMenu();
-  renderRows();
-  syncDetailPanel();
+  replaceProjectRow(projectId);
 
   if (shouldPersist) {
     persistProjectData();
@@ -1024,7 +1057,7 @@ function bindEditableCellEvents(row, project) {
         event.currentTarget.value = nextValue;
       }
 
-      updateProjectField(project.id, field, nextValue, { persist: false });
+      updateProjectField(project.id, field, nextValue, { persist: false, rerenderRow: false });
     });
 
     control.addEventListener("blur", () => {
@@ -1037,10 +1070,137 @@ function bindEditableCellEvents(row, project) {
   });
 }
 
+function renderProjectRowMarkup(project) {
+  return `
+    <td>${renderProjectCell(project)}</td>
+    <td>${renderLevelCell(project)}</td>
+    <td>${renderStatusCell(project)}</td>
+    <td>${renderProgressCell(project)}</td>
+    <td>${
+      isEditingCell(project.id, "projectNo")
+        ? renderTextInput(project, "projectNo", "Project number", "compact-input")
+        : state.currentTableMode === "edit"
+          ? renderEditableShell(
+              project,
+              "projectNo",
+              "Edit project number",
+              `<span class="project-code">${escapeHtml(project.projectNo)}</span>`
+            )
+          : `<span class="project-code">${escapeHtml(project.projectNo)}</span>`
+    }</td>
+    <td>${
+      isEditingCell(project.id, "contractNo")
+        ? renderTextInput(project, "contractNo", "Contract number", "compact-input")
+        : state.currentTableMode === "edit"
+          ? renderEditableShell(
+              project,
+              "contractNo",
+              "Edit contract number",
+              `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
+            )
+          : `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
+    }</td>
+    <td>
+      <button class="row-delete-button" type="button" aria-label="Delete ${escapeHtml(project.name)}">
+        <i data-lucide="trash-2"></i>
+      </button>
+    </td>
+  `;
+}
+
+function bindProjectRowEvents(row, project) {
+  row.addEventListener("click", () => selectProject(project, row));
+  const deleteButton = row.querySelector(".row-delete-button");
+  const dragHandle = row.querySelector(".row-drag-handle");
+
+  if (dragHandle) {
+    dragHandle.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    dragHandle.addEventListener("dragstart", (event) => {
+      event.stopPropagation();
+      state.draggedProjectId = project.id;
+      row.classList.add("dragging");
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(project.id));
+      }
+    });
+
+    dragHandle.addEventListener("dragend", () => {
+      state.draggedProjectId = null;
+      row.classList.remove("dragging");
+      document.querySelectorAll("tbody tr").forEach((tr) => tr.classList.remove("drag-over"));
+    });
+  }
+
+  row.addEventListener("dragover", (event) => {
+    if (!state.draggedProjectId || state.draggedProjectId === project.id) return;
+    event.preventDefault();
+    row.classList.add("drag-over");
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "move";
+    }
+  });
+
+  row.addEventListener("dragleave", () => {
+    row.classList.remove("drag-over");
+  });
+
+  row.addEventListener("drop", (event) => {
+    if (!state.draggedProjectId || state.draggedProjectId === project.id) return;
+    event.preventDefault();
+    event.stopPropagation();
+    row.classList.remove("drag-over");
+    moveProject(state.draggedProjectId, project.id);
+    state.draggedProjectId = null;
+  });
+
+  deleteButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    deleteProject(project.id);
+  });
+
+  if (state.currentTableMode === "edit") {
+    bindEditableCellEvents(row, project);
+  }
+}
+
+function renderProjectRowElement(project) {
+  const row = document.createElement("tr");
+  row.dataset.projectId = String(project.id);
+  row.classList.toggle("selected", project.id === state.selectedProjectId);
+  row.innerHTML = renderProjectRowMarkup(project);
+  bindProjectRowEvents(row, project);
+  return row;
+}
+
+function replaceProjectRow(projectId) {
+  const project = state.projectData.find((item) => item.id === projectId);
+  const currentRow = tableBody.querySelector(`tr[data-project-id="${projectId}"]`);
+  if (!project || !currentRow) return null;
+
+  const nextRow = renderProjectRowElement(project);
+  currentRow.replaceWith(nextRow);
+  window.lucide.createIcons();
+  return nextRow;
+}
+
+function focusActiveCellControl() {
+  if (!state.activeEditCell) return;
+
+  const activeControl = tableBody.querySelector(
+    `tr[data-project-id="${state.activeEditCell.projectId}"] [data-field="${state.activeEditCell.field}"]`
+  );
+  activeControl?.focus();
+  if (activeControl?.select) activeControl.select();
+}
+
 function selectProject(project, row) {
   state.selectedProjectId = project.id;
-  document.querySelectorAll("tbody tr").forEach((tr) => tr.classList.remove("selected"));
-  row.classList.add("selected");
+  syncSelectedRow(project.id);
+  if (row) row.classList.add("selected");
   applyProjectToDetail(project);
 }
 
@@ -1052,7 +1212,7 @@ function restoreSelectedRow() {
 
   const activeRow = document.querySelector(`tbody tr[data-project-id="${activeProject.id}"]`);
   if (activeRow) {
-    selectProject(activeProject, activeRow);
+    syncSelectedRow(activeProject.id);
   }
 }
 
@@ -1081,14 +1241,20 @@ async function copyProjectSummary(project) {
   await copyText(payload);
 
   state.copiedProjectName = project.name;
-  renderRows();
-  restoreSelectedRow();
+  const activeProject = getActiveProject();
+  if (activeProject) {
+    updateDetailHeaderActions(activeProject);
+    window.lucide.createIcons();
+  }
 
   window.setTimeout(() => {
     if (state.copiedProjectName !== project.name) return;
     state.copiedProjectName = null;
-    renderRows();
-    restoreSelectedRow();
+    const currentProject = getActiveProject();
+    if (currentProject) {
+      updateDetailHeaderActions(currentProject);
+      window.lucide.createIcons();
+    }
   }, 2200);
 }
 
@@ -1100,7 +1266,7 @@ async function copyDetailMeta(field, value) {
   state.copiedDetailMeta = { field, value };
   const activeProject = getActiveProject();
   if (activeProject) {
-    applyProjectToDetail(activeProject);
+    updateDetailHeader(activeProject);
   }
 
   window.setTimeout(() => {
@@ -1115,7 +1281,7 @@ async function copyDetailMeta(field, value) {
     state.copiedDetailMeta = null;
     const currentProject = getActiveProject();
     if (currentProject) {
-      applyProjectToDetail(currentProject);
+      updateDetailHeader(currentProject);
     }
   }, 2200);
 }
@@ -1124,7 +1290,7 @@ function flashExportFeedback(projectId) {
   state.exportedProjectId = projectId;
   const activeProject = getActiveProject();
   if (activeProject) {
-    applyProjectToDetail(activeProject);
+    updateDetailHeader(activeProject);
   }
 
   window.setTimeout(() => {
@@ -1132,7 +1298,7 @@ function flashExportFeedback(projectId) {
     state.exportedProjectId = null;
     const currentProject = getActiveProject();
     if (currentProject) {
-      applyProjectToDetail(currentProject);
+      updateDetailHeader(currentProject);
     }
   }, 2200);
 }
@@ -1171,104 +1337,7 @@ function renderRows() {
   tableBody.innerHTML = "";
 
   state.projectData.forEach((project) => {
-    const row = document.createElement("tr");
-    row.dataset.projectId = String(project.id);
-    if (project.id === state.selectedProjectId) row.classList.add("selected");
-
-    row.innerHTML = `
-      <td>${renderProjectCell(project)}</td>
-      <td>${renderLevelCell(project)}</td>
-      <td>${renderStatusCell(project)}</td>
-      <td>${renderProgressCell(project)}</td>
-      <td>${
-        isEditingCell(project.id, "projectNo")
-          ? renderTextInput(project, "projectNo", "Project number", "compact-input")
-          : state.currentTableMode === "edit"
-            ? renderEditableShell(
-                project,
-                "projectNo",
-                "Edit project number",
-                `<span class="project-code">${escapeHtml(project.projectNo)}</span>`
-              )
-            : `<span class="project-code">${escapeHtml(project.projectNo)}</span>`
-      }</td>
-      <td>${
-        isEditingCell(project.id, "contractNo")
-          ? renderTextInput(project, "contractNo", "Contract number", "compact-input")
-          : state.currentTableMode === "edit"
-            ? renderEditableShell(
-                project,
-                "contractNo",
-                "Edit contract number",
-                `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
-              )
-            : `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
-      }</td>
-      <td>
-        <button class="row-delete-button" type="button" aria-label="Delete ${escapeHtml(project.name)}">
-          <i data-lucide="trash-2"></i>
-        </button>
-      </td>
-    `;
-
-    row.addEventListener("click", () => selectProject(project, row));
-    const deleteButton = row.querySelector(".row-delete-button");
-    const dragHandle = row.querySelector(".row-drag-handle");
-
-    if (dragHandle) {
-      dragHandle.addEventListener("click", (event) => {
-        event.stopPropagation();
-      });
-
-      dragHandle.addEventListener("dragstart", (event) => {
-        event.stopPropagation();
-        state.draggedProjectId = project.id;
-        row.classList.add("dragging");
-        if (event.dataTransfer) {
-          event.dataTransfer.effectAllowed = "move";
-          event.dataTransfer.setData("text/plain", String(project.id));
-        }
-      });
-
-      dragHandle.addEventListener("dragend", () => {
-        state.draggedProjectId = null;
-        row.classList.remove("dragging");
-        document.querySelectorAll("tbody tr").forEach((tr) => tr.classList.remove("drag-over"));
-      });
-    }
-
-    row.addEventListener("dragover", (event) => {
-      if (!state.draggedProjectId || state.draggedProjectId === project.id) return;
-      event.preventDefault();
-      row.classList.add("drag-over");
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = "move";
-      }
-    });
-
-    row.addEventListener("dragleave", () => {
-      row.classList.remove("drag-over");
-    });
-
-    row.addEventListener("drop", (event) => {
-      if (!state.draggedProjectId || state.draggedProjectId === project.id) return;
-      event.preventDefault();
-      event.stopPropagation();
-      row.classList.remove("drag-over");
-      moveProject(state.draggedProjectId, project.id);
-      state.draggedProjectId = null;
-    });
-
-    deleteButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      deleteProject(project.id);
-    });
-
-    if (state.currentTableMode === "edit") {
-      bindEditableCellEvents(row, project);
-    }
-
-    tableBody.appendChild(row);
+    tableBody.appendChild(renderProjectRowElement(project));
   });
 
   window.lucide.createIcons();
@@ -1290,7 +1359,11 @@ function syncDetailPanel() {
     return;
   }
 
-  restoreSelectedRow();
+  const activeProject = getActiveProject();
+  if (!activeProject) return;
+
+  syncSelectedRow(activeProject.id);
+  applyProjectToDetail(activeProject);
 }
 
 function setActiveView(view) {

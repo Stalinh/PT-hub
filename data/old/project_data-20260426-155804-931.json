@@ -1,25 +1,6 @@
 {
   "projectData": [
     {
-      "id": 1,
-      "name": "沈阳富士水产线改造",
-      "tasks": [
-        "完成知识库映射字段核对",
-        "联调工单分发规则与回流链路",
-        "整理灰度测试前置检查项"
-      ],
-      "remark": "优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。",
-      "projectNo": "PT-24001",
-      "contractNo": "CN-2024-0186",
-      "level": "R",
-      "status": "in design",
-      "progress": 30,
-      "icon": "sparkles",
-      "version": 30,
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:58:04.916Z"
-    },
-    {
       "id": 3,
       "name": "Mobile App 3.0 Redesign",
       "tasks": [
@@ -56,6 +37,25 @@
       "version": 20,
       "createdAt": "2024-03-01T00:00:00.000Z",
       "updatedAt": "2026-04-26T07:25:31.691Z"
+    },
+    {
+      "id": 1,
+      "name": "沈阳富士水产线改造",
+      "tasks": [
+        "完成知识库映射字段核对",
+        "联调工单分发规则与回流链路",
+        "整理灰度测试前置检查项"
+      ],
+      "remark": "优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。",
+      "projectNo": "PT-24001",
+      "contractNo": "CN-2024-0186",
+      "level": "R",
+      "status": "in design",
+      "progress": 30,
+      "icon": "sparkles",
+      "version": 29,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2026-04-26T07:58:02.256Z"
     },
     {
       "id": 5,

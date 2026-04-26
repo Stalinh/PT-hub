@@ -15,9 +15,28 @@
       "status": "in design",
       "progress": 30,
       "icon": "sparkles",
-      "version": 30,
+      "version": 26,
       "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:58:04.916Z"
+      "updatedAt": "2026-04-26T06:32:54.505Z"
+    },
+    {
+      "id": 2,
+      "name": "哈哈哈哈打开手机福利卡的减肥看见了",
+      "tasks": [
+        "锁定跨境供应商字段标准",
+        "整理数据映射字典",
+        "确认追溯链路验收口径"
+      ],
+      "remark": "需要锁定外部供应商字段标准，避免后续链路追溯口径不一致。",
+      "projectNo": "PT-24007",
+      "contractNo": "CN-2024-0241",
+      "level": "R",
+      "status": "installing",
+      "progress": 60,
+      "icon": "network",
+      "version": 17,
+      "createdAt": "2024-03-01T00:00:00.000Z",
+      "updatedAt": "2026-04-26T06:04:45.288Z"
     },
     {
       "id": 3,
@@ -39,23 +58,23 @@
       "updatedAt": "2024-03-01T00:00:00.000Z"
     },
     {
-      "id": 2,
-      "name": "哈哈哈哈打开手机福利卡的减肥看见了",
+      "id": 4,
+      "name": "Next-Gen ERP Refactoring",
       "tasks": [
-        "锁定跨境供应商字段标准",
-        "整理数据映射字典",
-        "确认追溯链路验收口径"
+        "推进剩余模块拆分",
+        "梳理历史流程迁移回退方案",
+        "补齐业务中断风险检查表"
       ],
-      "remark": "需要锁定外部供应商字段标准，避免后续链路追溯口径不一致。",
-      "projectNo": "PT-24007",
-      "contractNo": "CN-2024-0241",
-      "level": "R",
+      "remark": "模块拆分已经完成一半，下一阶段重点是降低历史流程迁移的业务中断风险。",
+      "projectNo": "PT-24003",
+      "contractNo": "CN-2024-0204",
+      "level": "K",
       "status": "installing",
-      "progress": 60,
-      "icon": "network",
-      "version": 20,
-      "createdAt": "2024-03-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:25:31.691Z"
+      "progress": 45,
+      "icon": "blocks",
+      "version": 1,
+      "createdAt": "2024-02-01T00:00:00.000Z",
+      "updatedAt": "2024-02-01T00:00:00.000Z"
     },
     {
       "id": 5,
@@ -75,25 +94,6 @@
       "version": 1,
       "createdAt": "2024-01-15T00:00:00.000Z",
       "updatedAt": "2024-01-15T00:00:00.000Z"
-    },
-    {
-      "id": 4,
-      "name": "Next-Gen ERP Refactoring",
-      "tasks": [
-        "推进剩余模块拆分",
-        "梳理历史流程迁移回退方案",
-        "补齐业务中断风险检查表"
-      ],
-      "remark": "模块拆分已经完成一半，下一阶段重点是降低历史流程迁移的业务中断风险。",
-      "projectNo": "PT-24003",
-      "contractNo": "CN-2024-0204",
-      "level": "K",
-      "status": "installing",
-      "progress": 45,
-      "icon": "blocks",
-      "version": 2,
-      "createdAt": "2024-02-01T00:00:00.000Z",
-      "updatedAt": "2026-04-26T07:25:33.106Z"
     }
   ]
 }
