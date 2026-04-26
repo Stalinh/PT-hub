@@ -283,19 +283,32 @@
             <div class="detail-header">
               <div class="detail-header-top">
                 <p class="detail-kicker">Project Brief</p>
-                <button
-                  class="detail-export-button"
-                  id="detail-export-button"
-                  type="button"
-                  aria-label="Export brief"
-                  title="Export brief"
-                >
-                  <i data-lucide="download"></i>
-                </button>
+                <div class="detail-header-actions">
+                  <button
+                    class="detail-action-button"
+                    id="detail-copy-button"
+                    type="button"
+                    aria-label="Copy project name"
+                    title="Copy project name"
+                  >
+                    <i data-lucide="copy"></i>
+                  </button>
+                  <button
+                    class="detail-action-button"
+                    id="detail-export-button"
+                    type="button"
+                    aria-label="Export brief"
+                    title="Export brief"
+                  >
+                    <i data-lucide="download"></i>
+                  </button>
+                </div>
               </div>
               <h2 id="detail-title">AI Customer Service Upgrade</h2>
               <p class="detail-summary" id="detail-summary">
-                Customer service project for omnichannel automation rollout
+                <span class="detail-meta-value">PT-24001</span>
+                <span class="detail-meta-divider" aria-hidden="true"></span>
+                <span class="detail-meta-value">CN-2024-0186</span>
               </p>
             </div>
 
@@ -309,16 +322,18 @@
               </div>
             </div>
 
-            <dl class="detail-facts">
-              <div>
-                <dt>Schedule</dt>
-                <dd id="detail-date">2024-01-01 to 2024-04-15</dd>
-              </div>
-            </dl>
+            <section class="insight-strip detail-module">
+              <span class="section-caption">Tasks</span>
+              <ul class="detail-task-list" id="detail-tasks">
+                <li>完成知识库映射字段核对</li>
+                <li>联调工单分发规则与回流链路</li>
+                <li>整理灰度测试前置检查项</li>
+              </ul>
+            </section>
 
-            <section class="insight-strip">
-              <span class="section-caption">Project focus</span>
-              <p id="detail-focus">
+            <section class="insight-strip detail-module">
+              <span class="section-caption">Remark</span>
+              <p id="detail-remark">
                 优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。
               </p>
             </section>
@@ -331,10 +346,46 @@
             <div class="page-intro">
               <p class="eyebrow">Project workspace</p>
               <h1>Project Tasks</h1>
-              <p class="page-copy">当前页面预留给项目任务拆解、负责人分配与任务节奏跟踪。</p>
+              <p class="page-copy">用于查看当前选中项目的任务样例、负责人和推进状态，便于确认和 brief card 的联动表现。</p>
             </div>
           </header>
-          <section class="blank-panel"></section>
+          <section class="tasks-board">
+            <aside class="tasks-summary-panel">
+              <p class="detail-kicker">Selected Project</p>
+              <h2 id="tasks-project-title">AI Customer Service Upgrade</h2>
+              <p class="tasks-project-summary" id="tasks-project-summary">
+                <span class="detail-meta-value">PT-24001</span>
+                <span class="detail-meta-divider" aria-hidden="true"></span>
+                <span class="detail-meta-value">CN-2024-0186</span>
+              </p>
+
+              <div class="tasks-summary-metrics">
+                <article class="tasks-metric">
+                  <span>Open tasks</span>
+                  <strong id="tasks-open-count">0</strong>
+                </article>
+                <article class="tasks-metric">
+                  <span>In progress</span>
+                  <strong id="tasks-progress-count">0</strong>
+                </article>
+                <article class="tasks-metric">
+                  <span>Done</span>
+                  <strong id="tasks-done-count">0</strong>
+                </article>
+              </div>
+            </aside>
+
+            <section class="tasks-list-panel">
+              <div class="tasks-list-head">
+                <div>
+                  <h3>Task Samples</h3>
+                  <p>当前先使用任务样例数据验证项目详情和任务页联动。</p>
+                </div>
+              </div>
+
+              <div class="tasks-list" id="tasks-list"></div>
+            </section>
+          </section>
         </section>
 
         <section class="app-page" data-page="delivery">
@@ -468,6 +519,6 @@
     </div>
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="./app.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>
