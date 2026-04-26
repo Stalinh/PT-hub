@@ -40,6 +40,7 @@ const state = {
   taskData: [],
   nextProjectId: 1,
   copiedProjectName: null,
+  copiedDetailMeta: null,
   exportedProjectId: null,
   selectedProjectId: null,
   currentTableMode: readTableMode(),
@@ -158,10 +159,31 @@ function getTaskStatusClass(status) {
 }
 
 function renderProjectMetaMarkup(project) {
+  const projectNo = project.projectNo?.trim() || "";
+  const contractNo = project.contractNo?.trim() || "";
+  const copiedField = state.copiedDetailMeta;
+
+  const renderMetaItem = (label, value, fieldKey) => `
+    <span class="detail-meta-item">
+      <span class="detail-meta-value">${escapeHtml(value || "--")}</span>
+      <button
+        class="detail-meta-copy-button"
+        type="button"
+        data-detail-copy-field="${fieldKey}"
+        data-detail-copy-value="${escapeHtml(value)}"
+        aria-label="Copy ${label}"
+        title="Copy ${label}"
+        ${value ? "" : "disabled"}
+      >
+        <i data-lucide="${copiedField?.field === fieldKey && copiedField?.value === value ? "check" : "copy"}"></i>
+      </button>
+    </span>
+  `;
+
   return `
-    <span class="detail-meta-value">${escapeHtml(project.projectNo || "--")}</span>
+    ${renderMetaItem("project number", projectNo, "projectNo")}
     <span class="detail-meta-divider" aria-hidden="true"></span>
-    <span class="detail-meta-value">${escapeHtml(project.contractNo || "--")}</span>
+    ${renderMetaItem("contract number", contractNo, "contractNo")}
   `;
 }
 
@@ -1034,12 +1056,12 @@ function restoreSelectedRow() {
   }
 }
 
-async function copyProjectName(name) {
+async function copyText(value) {
   try {
-    await navigator.clipboard.writeText(name);
+    await navigator.clipboard.writeText(value);
   } catch (_error) {
     const textarea = document.createElement("textarea");
-    textarea.value = name;
+    textarea.value = value;
     textarea.setAttribute("readonly", "");
     textarea.style.position = "absolute";
     textarea.style.left = "-9999px";
@@ -1048,16 +1070,53 @@ async function copyProjectName(name) {
     document.execCommand("copy");
     document.body.removeChild(textarea);
   }
+}
 
-  state.copiedProjectName = name;
+function buildDetailCopyText(project) {
+  return [project.name, project.projectNo || "", project.contractNo || ""].join("    ");
+}
+
+async function copyProjectSummary(project) {
+  const payload = buildDetailCopyText(project);
+  await copyText(payload);
+
+  state.copiedProjectName = project.name;
   renderRows();
   restoreSelectedRow();
 
   window.setTimeout(() => {
-    if (state.copiedProjectName !== name) return;
+    if (state.copiedProjectName !== project.name) return;
     state.copiedProjectName = null;
     renderRows();
     restoreSelectedRow();
+  }, 2200);
+}
+
+async function copyDetailMeta(field, value) {
+  if (!value) return;
+
+  await copyText(value);
+
+  state.copiedDetailMeta = { field, value };
+  const activeProject = getActiveProject();
+  if (activeProject) {
+    applyProjectToDetail(activeProject);
+  }
+
+  window.setTimeout(() => {
+    if (
+      !state.copiedDetailMeta ||
+      state.copiedDetailMeta.field !== field ||
+      state.copiedDetailMeta.value !== value
+    ) {
+      return;
+    }
+
+    state.copiedDetailMeta = null;
+    const currentProject = getActiveProject();
+    if (currentProject) {
+      applyProjectToDetail(currentProject);
+    }
   }, 2200);
 }
 
@@ -1401,7 +1460,15 @@ function initGlobalEvents() {
     event.stopPropagation();
     const activeProject = getActiveProject();
     if (!activeProject) return;
-    await copyProjectName(activeProject.name);
+    await copyProjectSummary(activeProject);
+  });
+
+  detailEls.summary?.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-detail-copy-field]");
+    if (!button || button.disabled) return;
+
+    event.stopPropagation();
+    await copyDetailMeta(button.dataset.detailCopyField, button.dataset.detailCopyValue || "");
   });
 
   detailExportButton?.addEventListener("click", (event) => {

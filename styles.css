@@ -1849,6 +1849,50 @@ tbody td > div:not(.project-cell):not(.progress-cell) {
   line-height: 1.4;
 }
 
+.detail-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-meta-copy-button {
+  width: 1.45rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 248, 243, 0.12);
+  color: rgba(242, 249, 246, 0.76);
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  flex: none;
+}
+
+.detail-meta-copy-button:hover:not(:disabled),
+.detail-meta-copy-button:focus-visible:not(:disabled) {
+  background: rgba(239, 248, 243, 0.2);
+  color: rgba(248, 252, 250, 0.94);
+  transform: translateY(-1px);
+}
+
+.detail-meta-copy-button:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(223, 245, 235, 0.2);
+}
+
+.detail-meta-copy-button:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.detail-meta-copy-button svg,
+.detail-meta-copy-button i {
+  width: 0.78rem;
+  height: 0.78rem;
+}
+
 .detail-meta-divider {
   width: 1px;
   height: 14px;
