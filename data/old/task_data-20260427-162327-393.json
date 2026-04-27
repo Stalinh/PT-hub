@@ -10,7 +10,7 @@
       "projectStatus": "in design",
       "title": "Add the first execution tasks",
       "owner": "",
-      "status": "done",
+      "status": "doing",
       "dueDate": "2026-03-29",
       "note": "Add the owner and timeline for Add the first execution tasks."
     },
@@ -24,7 +24,7 @@
       "projectStatus": "in design",
       "title": "Confirm owner and milestones",
       "owner": "",
-      "status": "todo",
+      "status": "doing",
       "dueDate": "2026-04-28",
       "note": "Add the owner and timeline for Confirm owner and milestones."
     },

@@ -46,11 +46,18 @@
           </button>
         </nav>
 
-        <div class="sidebar-footer">
-          <div class="status-dot"></div>
-          <div>
-            <div class="footer-label">System Status</div>
-            <div class="footer-value">All services normal</div>
+        <div class="sidebar-bottom">
+          <button class="nav-item nav-item-summary" data-view="summary">
+            <i data-lucide="book-open-text"></i>
+            <span>Summary Page</span>
+          </button>
+
+          <div class="sidebar-footer">
+            <div class="status-dot"></div>
+            <div>
+              <div class="footer-label">System Status</div>
+              <div class="footer-value">All services normal</div>
+            </div>
           </div>
         </div>
       </aside>
@@ -436,6 +443,461 @@
               </div>
             </div>
           </header>
+        </section>
+
+        <section class="app-page" data-page="summary">
+          <header class="page-header">
+            <div class="page-intro">
+              <p class="eyebrow">Project standards</p>
+              <h1>PT Hub Summary</h1>
+              <p class="page-copy">
+                将当前项目的设计语言、交互范式、工程约束和代码组织整理为可直接执行的标准页。
+              </p>
+            </div>
+            <div class="page-header-status">
+              <div class="data-status" aria-live="polite">
+                <span class="data-status-dot" data-global-status-dot data-state="saved"></span>
+                <span data-global-status-text>Standards snapshot</span>
+              </div>
+            </div>
+          </header>
+
+          <section class="summary-page-grid">
+            <section class="summary-hero-card">
+              <div class="summary-hero-copy">
+                <p class="hero-label">Framework snapshot</p>
+                <h2>这是一个面向项目运营的单实例工作台，设计冻结，工程边界明确。</h2>
+                <p>
+                  视觉上采用暖中性色底与深绿色业务强调色，交互上坚持列表浏览、详情联动和原位编辑；
+                  工程上使用原生 Node + 原生浏览器模块，并以 JSON 作为唯一持久层。
+                </p>
+              </div>
+              <div class="summary-hero-stats">
+                <article class="summary-kpi">
+                  <span>Theme mode</span>
+                  <strong>Light only</strong>
+                </article>
+                <article class="summary-kpi">
+                  <span>Primary accent</span>
+                  <strong>#0F5A45</strong>
+                </article>
+                <article class="summary-kpi">
+                  <span>Persistence</span>
+                  <strong>JSON-backed</strong>
+                </article>
+              </div>
+            </section>
+
+            <aside class="summary-side-card">
+              <div class="summary-side-head">
+                <span class="section-caption">Core stance</span>
+                <i data-lucide="shield-check"></i>
+              </div>
+              <ul class="summary-bullet-list">
+                <li>No visual redesign without approval</li>
+                <li>No spacing or typography drift</li>
+                <li>No interaction path changes by default</li>
+                <li>Validate on read and write</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section class="summary-token-grid" aria-label="design tokens">
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Theme colors</span>
+                  <h3>Color tokens</h3>
+                </div>
+              </div>
+              <div class="token-list">
+                <div class="token-row">
+                  <span class="token-swatch" style="background:#f4f1ea"></span>
+                  <div>
+                    <strong>Background</strong>
+                    <span>`--bg` · #F4F1EA</span>
+                  </div>
+                </div>
+                <div class="token-row">
+                  <span class="token-swatch" style="background:#fffdfa"></span>
+                  <div>
+                    <strong>Surface</strong>
+                    <span>`--surface-strong` · #FFFDFA</span>
+                  </div>
+                </div>
+                <div class="token-row">
+                  <span class="token-swatch" style="background:#0f5a45"></span>
+                  <div>
+                    <strong>Accent</strong>
+                    <span>`--accent` · #0F5A45</span>
+                  </div>
+                </div>
+                <div class="token-row">
+                  <span class="token-swatch" style="background:#201d1a"></span>
+                  <div>
+                    <strong>Ink</strong>
+                    <span>`--ink` · #201D1A</span>
+                  </div>
+                </div>
+                <div class="token-row">
+                  <span class="token-swatch" style="background:#c67829"></span>
+                  <div>
+                    <strong>Warning</strong>
+                    <span>`--warn` · #C67829</span>
+                  </div>
+                </div>
+                <div class="token-row">
+                  <span class="token-swatch" style="background:#bb5a3c"></span>
+                  <div>
+                    <strong>Danger</strong>
+                    <span>`--danger` · #BB5A3C</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Design language</span>
+                  <h3>Visual characteristics</h3>
+                </div>
+              </div>
+              <div class="tag-cluster">
+                <span class="summary-tag">Warm neutral base</span>
+                <span class="summary-tag">Deep green accent</span>
+                <span class="summary-tag">Inter typography</span>
+                <span class="summary-tag">Soft shadow</span>
+                <span class="summary-tag">Large radius</span>
+                <span class="summary-tag">Light theme</span>
+                <span class="summary-tag">Operational dashboard</span>
+                <span class="summary-tag">Minimal chrome</span>
+              </div>
+              <div class="design-meta-grid">
+                <div class="design-meta-item">
+                  <strong>Typography</strong>
+                  <span>Inter, 400 / 500 / 600 / 700</span>
+                </div>
+                <div class="design-meta-item">
+                  <strong>Radius</strong>
+                  <span>16 / 22 / 30</span>
+                </div>
+                <div class="design-meta-item">
+                  <strong>Motion</strong>
+                  <span>180ms / 220ms ease</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Layout paradigm</span>
+                  <h3>Interaction model</h3>
+                </div>
+              </div>
+              <div class="pattern-list">
+                <div class="pattern-row">
+                  <strong>Sidebar navigation</strong>
+                  <span>固定入口，支持展开/收起</span>
+                </div>
+                <div class="pattern-row">
+                  <strong>Workspace pages</strong>
+                  <span>单页多视图切换，不依赖路由框架</span>
+                </div>
+                <div class="pattern-row">
+                  <strong>List + detail</strong>
+                  <span>Projects 页以表格和右侧 detail 联动为核心</span>
+                </div>
+                <div class="pattern-row">
+                  <strong>Read / Edit mode</strong>
+                  <span>浏览与编辑明确分层，编辑优先走 inline</span>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <section class="summary-principles-grid">
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Design principles</span>
+                  <h3>Style anchors</h3>
+                </div>
+              </div>
+              <div class="principle-list">
+                <div class="principle-row">
+                  <strong>Calm operational surface</strong>
+                  <span>以浅底、弱边框和低噪音层级支撑高密度信息浏览。</span>
+                </div>
+                <div class="principle-row">
+                  <strong>Action by accent</strong>
+                  <span>强调色只服务主操作、关键状态和视线引导，不做大面积装饰。</span>
+                </div>
+                <div class="principle-row">
+                  <strong>Readable before decorative</strong>
+                  <span>优先表格、标签、数值和状态反馈的可扫描性，再考虑质感。</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Visual materials</span>
+                  <h3>Texture and depth</h3>
+                </div>
+              </div>
+              <div class="material-showcase">
+                <div class="material-tile warm">Warm base</div>
+                <div class="material-tile accent">Accent glow</div>
+                <div class="material-tile dark">Dark detail</div>
+                <div class="material-tile line">Soft line</div>
+              </div>
+              <p class="summary-card-note">
+                统一使用暖色背景、柔和阴影、浅描边和局部深色面板制造层次，不使用高饱和渐变和重边框后台风格。
+              </p>
+            </article>
+          </section>
+
+          <section class="summary-component-grid">
+            <article class="summary-card component-showcase-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Component language</span>
+                  <h3>Control showcase</h3>
+                </div>
+              </div>
+              <div class="component-showcase">
+                <div class="component-demo">
+                  <span class="component-label">Primary action</span>
+                  <button class="hero-button primary" type="button">
+                    <i data-lucide="arrow-up-right"></i>
+                    <span>Run Review</span>
+                  </button>
+                </div>
+                <div class="component-demo">
+                  <span class="component-label">Secondary action</span>
+                  <button class="hero-button secondary" type="button">
+                    <i data-lucide="bell-ring"></i>
+                    <span>Notify Owner</span>
+                  </button>
+                </div>
+                <div class="component-demo">
+                  <span class="component-label">Mode switch</span>
+                  <div class="mode-switch" role="tablist" aria-label="Demo mode switch">
+                    <button class="mode-button active" type="button" aria-pressed="true">Read mode</button>
+                    <button class="mode-button" type="button" aria-pressed="false">Edit mode</button>
+                  </div>
+                </div>
+                <div class="component-demo">
+                  <span class="component-label">Status signals</span>
+                  <div class="component-chip-row">
+                    <span class="status status-design">in design</span>
+                    <span class="status status-installing">installing</span>
+                    <span class="status status-finished">finished</span>
+                  </div>
+                </div>
+                <div class="component-demo">
+                  <span class="component-label">Data status pill</span>
+                  <div class="data-status">
+                    <span class="data-status-dot" data-state="saved"></span>
+                    <span>Data saved</span>
+                  </div>
+                </div>
+                <div class="component-demo">
+                  <span class="component-label">Progress track</span>
+                  <div class="component-progress-demo">
+                    <div class="progress-track large"><span style="width:64%"></span></div>
+                    <strong>64%</strong>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Reusable elements</span>
+                  <h3>Element semantics</h3>
+                </div>
+              </div>
+              <div class="element-guideline-list">
+                <div class="element-guideline-row">
+                  <strong>Sidebar</strong>
+                  <span>承担全局导航和工作区切换，保持轻量、固定、可折叠。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Page header</strong>
+                  <span>负责页面定位、状态反馈和模式切换，不堆过多按钮。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Accent button</strong>
+                  <span>只给当前页面最主要的动作，避免多个同权重主按钮同时出现。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Status pill</strong>
+                  <span>用颜色表达流程状态，不承担复杂说明；文案必须短。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Metric card</strong>
+                  <span>展示单一关键指标，一张卡只表达一个结论。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Dark detail panel</strong>
+                  <span>用于承载选中对象的深层信息，作为页面的次级聚焦区。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Inline edit shell</strong>
+                  <span>用于表格原位修改，减少弹窗，保持上下文连续。</span>
+                </div>
+                <div class="element-guideline-row">
+                  <strong>Confirm dialog</strong>
+                  <span>仅用于删除、覆盖等高风险动作，视觉上明确风险等级。</span>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <section class="summary-two-col">
+            <article class="summary-card summary-card-dark">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Engineering rules</span>
+                  <h3>Persistence constraints</h3>
+                </div>
+              </div>
+              <div class="rule-stack">
+                <div class="rule-item">
+                  <span class="rule-index">01</span>
+                  <div>
+                    <strong>Single-instance JSON architecture</strong>
+                    <p>适用于内部团队、低并发写入、中等数据量，不以数据库替代为目标。</p>
+                  </div>
+                </div>
+                <div class="rule-item">
+                  <span class="rule-index">02</span>
+                  <div>
+                    <strong>Atomic writes</strong>
+                    <p>每次写入都要先校验，再归档旧文件，写临时文件，最后 rename 覆盖。</p>
+                  </div>
+                </div>
+                <div class="rule-item">
+                  <span class="rule-index">03</span>
+                  <div>
+                    <strong>Serialized writes</strong>
+                    <p>同一 dataset 的写入必须串行，避免单进程内的部分覆盖竞争。</p>
+                  </div>
+                </div>
+                <div class="rule-item">
+                  <span class="rule-index">04</span>
+                  <div>
+                    <strong>Startup validation</strong>
+                    <p>服务启动时确保数据文件存在并完成校验，发现坏数据直接 fail fast。</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Code style</span>
+                  <h3>Implementation standards</h3>
+                </div>
+              </div>
+              <div class="standards-grid">
+                <div class="standard-chip">
+                  <strong>Backend</strong>
+                  <span>CommonJS</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>Frontend</strong>
+                  <span>Browser ESM</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>Indent</strong>
+                  <span>2 spaces</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>Naming</strong>
+                  <span>camelCase + UPPER_SNAKE_CASE</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>Dependencies</strong>
+                  <span>Lightweight, mostly native</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>Errors</strong>
+                  <span>Explicit throw, no silent failure</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>UI reuse</strong>
+                  <span>Prefer existing control patterns first</span>
+                </div>
+                <div class="standard-chip">
+                  <strong>Visual changes</strong>
+                  <span>No redesign without explicit approval</span>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <section class="summary-structure-grid">
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Frontend structure</span>
+                  <h3>Web modules</h3>
+                </div>
+              </div>
+              <div class="module-list">
+                <div class="module-row"><strong>constants.js</strong><span>常量、枚举、接口地址</span></div>
+                <div class="module-row"><strong>dom.js</strong><span>DOM 引用集中管理</span></div>
+                <div class="module-row"><strong>storage.js</strong><span>本地状态持久化</span></div>
+                <div class="module-row"><strong>utils.js</strong><span>纯工具函数</span></div>
+                <div class="module-row"><strong>main.js</strong><span>状态、渲染、交互主逻辑</span></div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Backend structure</span>
+                  <h3>Server modules</h3>
+                </div>
+              </div>
+              <div class="module-list">
+                <div class="module-row"><strong>config.js</strong><span>路径、端口、MIME 类型</span></div>
+                <div class="module-row"><strong>http.js</strong><span>请求解析与 JSON 响应</span></div>
+                <div class="module-row"><strong>api.js</strong><span>数据接口分发</span></div>
+                <div class="module-row"><strong>repository.js</strong><span>读写、归档、串行化</span></div>
+                <div class="module-row"><strong>app.js</strong><span>启动、校验、总装配</span></div>
+              </div>
+            </article>
+
+            <article class="summary-card">
+              <div class="summary-card-head">
+                <div>
+                  <span class="section-caption">Quality bar</span>
+                  <h3>Regression matrix</h3>
+                </div>
+              </div>
+              <div class="matrix-list">
+                <span class="matrix-pill">Dashboard default</span>
+                <span class="matrix-pill">Projects read mode</span>
+                <span class="matrix-pill">Projects edit mode</span>
+                <span class="matrix-pill">Sidebar collapsed</span>
+                <span class="matrix-pill">New island open</span>
+                <span class="matrix-pill">Level menu open</span>
+                <span class="matrix-pill">Progress editing</span>
+                <span class="matrix-pill">Detail panel selected</span>
+                <span class="matrix-pill">Tasks page</span>
+                <span class="matrix-pill">Delivery page</span>
+                <span class="matrix-pill">Archive page</span>
+              </div>
+            </article>
+          </section>
         </section>
 
       </main>

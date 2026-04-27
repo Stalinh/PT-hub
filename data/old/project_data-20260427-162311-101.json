@@ -68,9 +68,9 @@
       "status": "in design",
       "progress": 0,
       "icon": "folder-open",
-      "version": 2,
+      "version": 1,
       "createdAt": "2026-04-27T00:55:51.485Z",
-      "updatedAt": "2026-04-27T08:23:11.091Z"
+      "updatedAt": "2026-04-27T00:55:51.485Z"
     },
     {
       "id": 1,
@@ -87,9 +87,9 @@
       "status": "in design",
       "progress": 30,
       "icon": "sparkles",
-      "version": 46,
+      "version": 45,
       "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2026-04-27T08:23:18.541Z"
+      "updatedAt": "2026-04-27T00:29:58.769Z"
     }
   ]
 }
