@@ -1,8 +1,10 @@
 export function levelClass(level) {
+  if (!level) return "";
   return `level-${String(level).toLowerCase()}`;
 }
 
 export function statusClass(status) {
+  if (!status) return "";
   if (status === "in design") return "status-design";
   if (status === "finished") return "status-finished";
   if (status === "installing") return "status-installing";

@@ -89,14 +89,22 @@ export function closeConfirmDialog() {
   confirmDialogCleanup = null;
 }
 
-export function openConfirmDialog({ title, message, confirmLabel = "删除", onConfirm }) {
+export function openConfirmDialog({
+  title,
+  message,
+  eyebrow = "Delete item",
+  confirmLabel = "删除",
+  onConfirm,
+}) {
   closeConfirmDialog();
 
+  const eyebrowEl = confirmDialog.querySelector(".confirm-dialog-eyebrow");
   const titleEl = confirmDialog.querySelector("#confirm-dialog-title");
   const messageEl = confirmDialog.querySelector("#confirm-dialog-message");
   const acceptButton = confirmDialog.querySelector("[data-confirm-accept='true']");
   const cancelButton = confirmDialog.querySelector("[data-confirm-cancel='true']");
 
+  eyebrowEl.textContent = eyebrow;
   titleEl.textContent = title;
   messageEl.textContent = message;
   acceptButton.textContent = confirmLabel;

@@ -293,6 +293,7 @@ export function isEditingCell(state, projectId, field) {
 
 export function renderChoiceTrigger(state, project, field) {
   const { label, renderOption } = getChoiceConfig(field);
+  const value = typeof project[field] === "string" ? project[field].trim() : "";
 
   return `
     <button
@@ -303,7 +304,7 @@ export function renderChoiceTrigger(state, project, field) {
       data-field="${field}"
       aria-label="${escapeHtml(label)}"
     >
-      <span class="choice-trigger-value">${renderOption(project[field])}</span>
+      <span class="choice-trigger-value">${value ? renderOption(value) : ""}</span>
     </button>
   `;
 }
@@ -374,12 +375,16 @@ export function renderProjectCell(state, project) {
 }
 
 export function renderLevelCell(state, project) {
-  const content = `<span class="pill ${levelClass(project.level)}">${escapeHtml(project.level)}</span>`;
+  const content = project.level
+    ? `<span class="pill ${levelClass(project.level)}">${escapeHtml(project.level)}</span>`
+    : "";
   return state.currentTableMode === "edit" ? renderChoiceTrigger(state, project, "level") : content;
 }
 
 export function renderStatusCell(state, project) {
-  const content = `<span class="status ${statusClass(project.status)}">${escapeHtml(project.status)}</span>`;
+  const content = project.status
+    ? `<span class="status ${statusClass(project.status)}">${escapeHtml(project.status)}</span>`
+    : "";
   return state.currentTableMode === "edit" ? renderChoiceTrigger(state, project, "status") : content;
 }
 
@@ -423,7 +428,12 @@ export function renderProjectRowMarkup(state, project) {
           : `<span class="project-code">${escapeHtml(project.contractNo)}</span>`
     }</td>
     <td>
-      <button class="row-delete-button" type="button" aria-label="Delete ${escapeHtml(project.name)}">
+      <button
+        class="row-delete-button"
+        type="button"
+        aria-label="Delete project ${escapeHtml(project.name)}"
+        title="Delete project ${escapeHtml(project.name)}"
+      >
         <i data-lucide="trash-2"></i>
       </button>
     </td>

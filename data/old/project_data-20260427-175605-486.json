@@ -1,0 +1,76 @@
+{
+  "projectData": [
+    {
+      "id": 9,
+      "name": "1234",
+      "tasks": [],
+      "remark": "",
+      "projectNo": "PT-24005",
+      "contractNo": "CN-2024-0185",
+      "level": "N",
+      "status": "in design",
+      "progress": 0,
+      "icon": "folder-open",
+      "version": 1,
+      "createdAt": "2026-04-27T01:50:31.105Z",
+      "updatedAt": "2026-04-27T01:50:31.105Z"
+    },
+    {
+      "id": 7,
+      "name": "reser",
+      "tasks": [
+        "Add the first execution tasks",
+        "Confirm owner and milestones",
+        "Document launch prerequisites"
+      ],
+      "remark": "Complete the project objective, owner, and key milestones before moving into active execution.",
+      "projectNo": "PT-24003",
+      "contractNo": "CN-2024-0183",
+      "level": "N",
+      "status": "in design",
+      "progress": 0,
+      "icon": "folder-open",
+      "version": 1,
+      "createdAt": "2026-04-27T00:58:34.476Z",
+      "updatedAt": "2026-04-27T00:58:34.476Z"
+    },
+    {
+      "id": 6,
+      "name": "福州海大",
+      "tasks": [
+        "Add the first execution tasks",
+        "Confirm owner and milestones",
+        "Document launch prerequisites"
+      ],
+      "remark": "Complete the project objective, owner, and key milestones before moving into active execution.",
+      "projectNo": "PT-24003",
+      "contractNo": "CN-2024-0183",
+      "level": "N",
+      "status": "in design",
+      "progress": 0,
+      "icon": "folder-open",
+      "version": 2,
+      "createdAt": "2026-04-27T00:55:51.485Z",
+      "updatedAt": "2026-04-27T08:23:11.091Z"
+    },
+    {
+      "id": 1,
+      "name": "沈阳富士水产线改造",
+      "tasks": [
+        "完成知识库映射字段核对",
+        "联调工单分发规则与回流链路",
+        "整理灰度测试前置检查项"
+      ],
+      "remark": "优先完成知识库映射和工单分发联调，避免灰度测试窗口继续后移。",
+      "projectNo": "12343214",
+      "contractNo": "CN-2024-0186",
+      "level": "R",
+      "status": "in design",
+      "progress": 30,
+      "icon": "sparkles",
+      "version": 46,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2026-04-27T08:23:18.541Z"
+    }
+  ]
+}

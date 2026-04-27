@@ -15,6 +15,7 @@ export const dataStatusTexts = document.querySelectorAll("[data-global-status-te
 export const dataStatusDots = document.querySelectorAll("[data-global-status-dot]");
 export const detailCopyButton = document.getElementById("detail-copy-button");
 export const detailExportButton = document.getElementById("detail-export-button");
+export const detailTaskAddButton = document.getElementById("detail-task-add-button");
 export const detailEls = {
   title: document.getElementById("detail-title"),
   summary: document.getElementById("detail-summary"),

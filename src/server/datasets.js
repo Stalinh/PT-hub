@@ -355,8 +355,8 @@ function validateProjectData(list) {
       throw new Error(`projectData[${index}].name must be a non-empty string.`);
     }
 
-    if (typeof project.projectNo !== "string" || !project.projectNo.trim()) {
-      throw new Error(`projectData[${index}].projectNo must be a non-empty string.`);
+    if (typeof project.projectNo !== "string") {
+      throw new Error(`projectData[${index}].projectNo must be a string.`);
     }
 
     if (typeof project.contractNo !== "string") {
@@ -371,13 +371,24 @@ function validateProjectData(list) {
       throw new Error(`projectData[${index}].remark must be a string.`);
     }
 
-    if (!["V", "K", "R", "N"].includes(project.level)) {
-      throw new Error(`projectData[${index}].level must be one of V, K, R, N.`);
+    if (typeof project.level !== "string") {
+      throw new Error(`projectData[${index}].level must be a string.`);
     }
 
-    if (!["in design", "installing", "installed", "finished"].includes(project.status)) {
+    if (project.level.trim() && !["V", "K", "R", "N"].includes(project.level.trim())) {
+      throw new Error(`projectData[${index}].level must be one of V, K, R, N when provided.`);
+    }
+
+    if (typeof project.status !== "string") {
+      throw new Error(`projectData[${index}].status must be a string.`);
+    }
+
+    if (
+      project.status.trim() &&
+      !["in design", "installing", "installed", "finished"].includes(project.status.trim())
+    ) {
       throw new Error(
-        `projectData[${index}].status must be one of in design, installing, installed, finished.`
+        `projectData[${index}].status must be one of in design, installing, installed, finished when provided.`
       );
     }
 
@@ -421,21 +432,32 @@ function validateTaskData(list) {
       throw new Error(`taskData[${index}].projectName must be a non-empty string.`);
     }
 
-    if (typeof task.projectNo !== "string" || !task.projectNo.trim()) {
-      throw new Error(`taskData[${index}].projectNo must be a non-empty string.`);
+    if (typeof task.projectNo !== "string") {
+      throw new Error(`taskData[${index}].projectNo must be a string.`);
     }
 
     if (typeof task.contractNo !== "string") {
       throw new Error(`taskData[${index}].contractNo must be a string.`);
     }
 
-    if (!["V", "K", "R", "N"].includes(task.projectLevel)) {
-      throw new Error(`taskData[${index}].projectLevel must be one of V, K, R, N.`);
+    if (typeof task.projectLevel !== "string") {
+      throw new Error(`taskData[${index}].projectLevel must be a string.`);
     }
 
-    if (!["in design", "installing", "installed", "finished"].includes(task.projectStatus)) {
+    if (task.projectLevel.trim() && !["V", "K", "R", "N"].includes(task.projectLevel.trim())) {
+      throw new Error(`taskData[${index}].projectLevel must be one of V, K, R, N when provided.`);
+    }
+
+    if (typeof task.projectStatus !== "string") {
+      throw new Error(`taskData[${index}].projectStatus must be a string.`);
+    }
+
+    if (
+      task.projectStatus.trim() &&
+      !["in design", "installing", "installed", "finished"].includes(task.projectStatus.trim())
+    ) {
       throw new Error(
-        `taskData[${index}].projectStatus must be one of in design, installing, installed, finished.`
+        `taskData[${index}].projectStatus must be one of in design, installing, installed, finished when provided.`
       );
     }
 

@@ -111,20 +111,6 @@
       "status": "todo",
       "dueDate": "",
       "note": ""
-    },
-    {
-      "id": 207,
-      "projectId": 13,
-      "projectName": "法国红酒和官方",
-      "projectNo": "",
-      "contractNo": "",
-      "projectLevel": "",
-      "projectStatus": "",
-      "title": "New task",
-      "owner": "",
-      "status": "todo",
-      "dueDate": "",
-      "note": ""
     }
   ]
 }

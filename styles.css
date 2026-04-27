@@ -2232,6 +2232,7 @@ tbody td:nth-child(2),
 tbody td:nth-child(3) {
   padding-left: 8px;
   padding-right: 8px;
+  text-align: center;
 }
 
 thead th:nth-child(4),
@@ -2424,15 +2425,17 @@ tbody tr.drag-over {
   max-width: 100%;
   min-height: 34px;
   padding: 0;
+  margin: 0 auto;
   border: 0;
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 8px;
   background: transparent;
   box-shadow: none;
   color: var(--ink);
+  vertical-align: middle;
 }
 
 .choice-trigger.active {
@@ -2445,6 +2448,11 @@ tbody tr.drag-over {
   flex: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+}
+
+.choice-trigger-value:empty::before {
+  content: "\00a0";
 }
 
 .choice-trigger i,
@@ -2596,11 +2604,13 @@ tbody tr.drag-over {
 .pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 30px;
   padding: 0 11px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1;
 }
 
 .pill.level-v {
@@ -2632,6 +2642,7 @@ tbody tr.drag-over {
   border-radius: 999px;
   font-weight: 700;
   font-size: 12px;
+  line-height: 1;
   text-align: center;
   white-space: nowrap;
 }
@@ -3037,6 +3048,13 @@ dd {
   margin-top: 4px;
 }
 
+.detail-module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .detail-module .section-caption {
   display: inline-block;
   margin-bottom: 14px;
@@ -3046,6 +3064,47 @@ dd {
   text-transform: uppercase;
   color: rgba(244, 250, 247, 0.82);
   text-shadow: 0 1px 0 rgba(8, 48, 37, 0.22);
+}
+
+.detail-module-head .section-caption {
+  margin-bottom: 0;
+}
+
+.detail-task-add-button {
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: rgba(232, 243, 238, 0.66);
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.detail-task-add-button:hover:not(:disabled),
+.detail-task-add-button:focus-visible:not(:disabled) {
+  color: rgba(247, 252, 249, 0.96);
+  transform: translateY(-1px);
+}
+
+.detail-task-add-button:focus-visible {
+  outline: 0;
+}
+
+.detail-task-add-button:disabled {
+  color: rgba(214, 229, 222, 0.3);
+  cursor: default;
+}
+
+.detail-task-add-button svg,
+.detail-task-add-button i {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
 }
 
 .detail-task-list {

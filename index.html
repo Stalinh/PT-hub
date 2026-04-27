@@ -326,7 +326,20 @@
             </div>
 
             <section class="insight-strip detail-module">
-              <span class="section-caption">Tasks</span>
+              <div class="detail-module-head">
+                <span class="section-caption">Tasks</span>
+                <button
+                  class="detail-task-add-button"
+                  id="detail-task-add-button"
+                  type="button"
+                  aria-label="Add task"
+                  title="Switch to Edit mode to add task"
+                  disabled
+                >
+                  <i data-lucide="plus"></i>
+                  <span>New</span>
+                </button>
+              </div>
               <ul class="detail-task-list" id="detail-tasks">
                 <li>完成知识库映射字段核对</li>
                 <li>联调工单分发规则与回流链路</li>

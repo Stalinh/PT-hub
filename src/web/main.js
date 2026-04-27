@@ -7,6 +7,7 @@ import {
   detailCopyButton,
   detailExportButton,
   detailEls,
+  detailTaskAddButton,
   modeButtons,
   navItems,
   newIsland,
@@ -160,6 +161,52 @@ function getProjectTaskSnapshot(project) {
     progressCount: tasks.filter((task) => task.status === "doing").length,
     doneCount: tasks.filter((task) => task.status === "done").length,
   };
+}
+
+function buildTaskDraft(project, title = "") {
+  const taskId = state.nextTaskId++;
+  const normalizedTitle = typeof title === "string" ? title.trim() : "";
+
+  return {
+    id: taskId,
+    projectId: project.id,
+    ...buildTaskProjectSnapshot(project),
+    title: normalizedTitle || `Task ${taskId}`,
+    owner: "",
+    status: "todo",
+    dueDate: "",
+    note: "",
+  };
+}
+
+function hydrateProjectFallbackTasks(project) {
+  if (!project) return [];
+
+  const existingTasks = getProjectTasks(project.id);
+  if (existingTasks.length) return existingTasks;
+  if (!Array.isArray(project.tasks) || !project.tasks.length) return [];
+
+  const hydratedTasks = project.tasks
+    .filter((taskTitle) => typeof taskTitle === "string")
+    .map((taskTitle) => buildTaskDraft(project, taskTitle));
+
+  state.taskData.push(...hydratedTasks);
+  return hydratedTasks;
+}
+
+function createTaskForProject(project) {
+  if (!project || state.currentTableMode !== "edit") return;
+
+  hydrateProjectFallbackTasks(project);
+
+  const nextTask = buildTaskDraft(project, "New task");
+  state.taskData.push(nextTask);
+  state.selectedProjectId = project.id;
+  state.selectedTaskId = nextTask.id;
+
+  refreshProjectTaskSurfaces(project);
+  persistTaskData();
+  startDetailTaskEdit(nextTask.id);
 }
 
 function getActiveProject() {
@@ -473,6 +520,7 @@ function confirmDeleteTask(taskId) {
   if (!task) return;
 
   openConfirmDialog({
+    eyebrow: "Delete task",
     title: "删除任务",
     message: `任务"${task.title}"删除后将无法恢复，相关执行记录会从当前任务列表中移除。`,
     confirmLabel: "删除任务",
@@ -788,6 +836,10 @@ function syncSelectedRow(projectId = state.selectedProjectId) {
 function deleteProject(projectId) {
   const index = state.projectData.findIndex((project) => project.id === projectId);
   if (index === -1) return;
+  const deletedTaskIds = state.taskData
+    .filter((task) => task.projectId === projectId)
+    .map((task) => task.id);
+  const deletedTaskIdSet = new Set(deletedTaskIds);
 
   if (state.activeEditCell?.projectId === projectId) {
     state.activeEditCell = null;
@@ -795,8 +847,23 @@ function deleteProject(projectId) {
     updateFloatingChoiceMenu(state, tableBody, tasksPageEls);
   }
 
+  if (state.activeTaskEditCell && deletedTaskIdSet.has(state.activeTaskEditCell.taskId)) {
+    state.activeTaskEditCell = null;
+    state.editSessionTaskDirty = false;
+    updateFloatingChoiceMenu(state, tableBody, tasksPageEls);
+  }
+
+  if (state.activeDetailTaskEdit && deletedTaskIdSet.has(state.activeDetailTaskEdit.taskId)) {
+    state.activeDetailTaskEdit = null;
+  }
+
   state.projectData.splice(index, 1);
+  state.taskData = state.taskData.filter((task) => task.projectId !== projectId);
   removeProjectRow(projectId);
+
+  if (state.selectedTaskId && deletedTaskIdSet.has(state.selectedTaskId)) {
+    state.selectedTaskId = null;
+  }
 
   if (state.selectedProjectId === projectId) {
     state.selectedProjectId = state.projectData[0]?.id || null;
@@ -804,7 +871,9 @@ function deleteProject(projectId) {
 
   syncTaskSelectionFromProject(state.selectedProjectId);
   syncDetailPanel();
+  renderTasksPage();
   persistProjectData();
+  persistTaskData();
 }
 
 function confirmDeleteProject(projectId) {
@@ -813,13 +882,14 @@ function confirmDeleteProject(projectId) {
 
   const relatedTaskCount = state.taskData.filter((task) => task.projectId === projectId).length;
   const message = relatedTaskCount
-    ? `项目"${project.name}"删除后将无法恢复。当前关联的 ${relatedTaskCount} 条任务会保留在任务总表中，但会失去该项目的详情联动。`
+    ? `项目"${project.name}"删除后将无法恢复，并会同时删除关联的 ${relatedTaskCount} 条 task。`
     : `项目"${project.name}"删除后将无法恢复。`;
 
   openConfirmDialog({
+    eyebrow: relatedTaskCount ? "Delete project and tasks" : "Delete project",
     title: "删除项目",
     message,
-    confirmLabel: "删除项目",
+    confirmLabel: relatedTaskCount ? "删除项目和任务" : "删除项目",
     onConfirm: () => deleteProject(projectId),
   });
 }
@@ -1207,11 +1277,21 @@ function refreshProjectTaskSurfaces(project, taskSnapshot = getProjectTaskSnapsh
   renderTasksPage(project);
 }
 
+function syncDetailTaskAddButton(project = getActiveProject()) {
+  if (!detailTaskAddButton) return;
+
+  const enabled = Boolean(project) && state.currentTableMode === "edit";
+  detailTaskAddButton.disabled = !enabled;
+  detailTaskAddButton.setAttribute("aria-disabled", String(!enabled));
+  detailTaskAddButton.title = enabled ? "Add task" : "Switch to Edit mode to add task";
+}
+
 function applyProjectToDetail(project) {
   updateDetailHeader(project);
   updateDetailProgress(project);
   refreshProjectTaskSurfaces(project);
   updateDetailRemark(project);
+  syncDetailTaskAddButton(project);
 }
 
 function syncDetailPanel() {
@@ -1226,6 +1306,7 @@ function syncDetailPanel() {
     detailEls.progressBar.style.width = "0%";
     detailEls.tasks.innerHTML = `<li class="detail-task-empty">Task items for the selected project will appear here.</li>`;
     detailEls.remark.textContent = "Project notes for the selected project will appear here.";
+    syncDetailTaskAddButton(null);
     renderTasksPage(null);
     return;
   }
@@ -1555,17 +1636,16 @@ function setNewIslandOpen(open) {
 }
 
 function createProjectDraft(name) {
-  const nextIndex = state.projectData.length + 1;
   const now = new Date().toISOString();
   const project = {
     id: state.nextProjectId++,
     name,
     tasks: [],
     remark: "",
-    projectNo: `PT-${String(24000 + nextIndex).padStart(5, "0")}`,
-    contractNo: `CN-2024-${String(180 + nextIndex).padStart(4, "0")}`,
-    level: "N",
-    status: "in design",
+    projectNo: "",
+    contractNo: "",
+    level: "",
+    status: "",
     progress: 0,
     icon: "folder-open",
     version: 1,
@@ -1787,6 +1867,13 @@ function initGlobalEvents() {
     const activeProject = getActiveProject();
     if (!activeProject) return;
     flashExportFeedback(activeProject.id);
+  });
+
+  detailTaskAddButton?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const activeProject = getActiveProject();
+    if (!activeProject || state.currentTableMode !== "edit") return;
+    createTaskForProject(activeProject);
   });
 
   detailEls.tasks?.addEventListener("click", (event) => {

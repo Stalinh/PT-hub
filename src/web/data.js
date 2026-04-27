@@ -15,6 +15,8 @@ export function normalizeTaskStatusValue(status) {
 
 export function normalizeProject(item, fallbackId) {
   const now = new Date().toISOString();
+  const level = typeof item?.level === "string" ? item.level.trim() : "";
+  const status = typeof item?.status === "string" ? item.status.trim() : "";
 
   return {
     id: Number.isInteger(item?.id) ? item.id : fallbackId,
@@ -25,8 +27,8 @@ export function normalizeProject(item, fallbackId) {
     remark: typeof item?.remark === "string" ? item.remark : "",
     projectNo: typeof item?.projectNo === "string" ? item.projectNo : "",
     contractNo: typeof item?.contractNo === "string" ? item.contractNo : "",
-    level: LEVEL_OPTIONS.includes(item?.level) ? item.level : "N",
-    status: STATUS_OPTIONS.includes(item?.status) ? item.status : "in design",
+    level: LEVEL_OPTIONS.includes(level) ? level : "",
+    status: STATUS_OPTIONS.includes(status) ? status : "",
     progress: clampProgress(item?.progress),
     icon: typeof item?.icon === "string" ? item.icon : "folder-open",
     version: Number.isInteger(item?.version) && item.version > 0 ? item.version : 1,
@@ -38,6 +40,8 @@ export function normalizeProject(item, fallbackId) {
 export function normalizeTask(item, fallbackId) {
   const normalizedTitle =
     typeof item?.title === "string" && item.title.trim() ? item.title.trim() : `Task ${fallbackId}`;
+  const projectLevel = typeof item?.projectLevel === "string" ? item.projectLevel.trim() : "";
+  const projectStatus = typeof item?.projectStatus === "string" ? item.projectStatus.trim() : "";
 
   return {
     id: Number.isInteger(item?.id) ? item.id : fallbackId,
@@ -45,10 +49,8 @@ export function normalizeTask(item, fallbackId) {
     projectName: typeof item?.projectName === "string" ? item.projectName : "",
     projectNo: typeof item?.projectNo === "string" ? item.projectNo : "",
     contractNo: typeof item?.contractNo === "string" ? item.contractNo : "",
-    projectLevel: LEVEL_OPTIONS.includes(item?.projectLevel) ? item.projectLevel : "N",
-    projectStatus: STATUS_OPTIONS.includes(item?.projectStatus)
-      ? item.projectStatus
-      : "in design",
+    projectLevel: LEVEL_OPTIONS.includes(projectLevel) ? projectLevel : "",
+    projectStatus: STATUS_OPTIONS.includes(projectStatus) ? projectStatus : "",
     title: normalizedTitle,
     owner: typeof item?.owner === "string" ? item.owner : "",
     status: normalizeTaskStatusValue(item?.status),
