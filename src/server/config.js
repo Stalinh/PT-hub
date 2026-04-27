@@ -3,8 +3,12 @@ const path = require("path");
 const PORT = Number.parseInt(process.env.PORT || "4173", 10);
 const HOST = process.env.HOST || "127.0.0.1";
 const ROOT_DIR = path.resolve(__dirname, "../..");
-const DATA_DIR = path.join(ROOT_DIR, "data");
-const ARCHIVE_DIR = path.join(DATA_DIR, "old");
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(ROOT_DIR, "data");
+const ARCHIVE_DIR = process.env.ARCHIVE_DIR
+  ? path.resolve(process.env.ARCHIVE_DIR)
+  : path.join(DATA_DIR, "old");
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
@@ -24,4 +28,3 @@ module.exports = {
   ARCHIVE_DIR,
   MIME_TYPES,
 };
-

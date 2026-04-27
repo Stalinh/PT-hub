@@ -34,7 +34,7 @@
           </button>
           <button class="nav-item" data-view="tasks">
             <i data-lucide="list-checks"></i>
-            <span>Project Tasks</span>
+            <span>Task Overview</span>
           </button>
           <button class="nav-item" data-view="delivery">
             <i data-lucide="calendar"></i>
@@ -44,25 +44,7 @@
             <i data-lucide="archive"></i>
             <span>Project Archive</span>
           </button>
-          <button class="nav-item" data-view="test">
-            <i data-lucide="swatches"></i>
-            <span>Test Page</span>
-          </button>
         </nav>
-
-        <section class="sidebar-section">
-          <div class="section-caption">Project Focus</div>
-          <div class="focus-stack">
-            <div class="focus-card">
-              <span class="focus-label">Projects Needing Attention</span>
-              <strong>4 projects</strong>
-            </div>
-            <div class="focus-card muted">
-              <span class="focus-label">Project Capacity Window</span>
-              <strong>Tuesday 14:00</strong>
-            </div>
-          </div>
-        </section>
 
         <div class="sidebar-footer">
           <div class="status-dot"></div>
@@ -93,11 +75,18 @@
                 用于汇总项目健康度、项目风险分布与本周需要推进的关键项目动作。
               </p>
             </div>
-
-            <div class="header-actions">
-              <div class="header-chip">
-                <i data-lucide="calendar-days"></i>
-                <span>Week 17 review</span>
+            <div class="page-header-status">
+              <div class="data-status" aria-live="polite">
+                <span class="data-status-dot" data-global-status-dot data-state="loading"></span>
+                <span data-global-status-text>Loading data...</span>
+              </div>
+              <div class="mode-switch page-mode-switch" role="tablist" aria-label="Table mode">
+                <button class="mode-button active" type="button" data-mode="read" aria-pressed="true">
+                  Read mode
+                </button>
+                <button class="mode-button" type="button" data-mode="edit" aria-pressed="false">
+                  Edit mode
+                </button>
               </div>
             </div>
           </header>
@@ -191,9 +180,31 @@
                 面向项目执行的主工作台，聚焦项目列表浏览、快速复制与项目详情联动。
               </p>
             </div>
-            <div class="data-status" aria-live="polite">
-              <span class="data-status-dot" id="data-status-dot" data-state="loading"></span>
-              <span id="data-status-text">Loading project data...</span>
+            <div class="page-header-status">
+              <div class="data-status" aria-live="polite">
+                <span class="data-status-dot" data-global-status-dot data-state="loading"></span>
+                <span data-global-status-text>Loading data...</span>
+              </div>
+              <div class="mode-switch page-mode-switch" role="tablist" aria-label="Table mode">
+                <button
+                  class="mode-button active"
+                  id="read-mode-button"
+                  type="button"
+                  data-mode="read"
+                  aria-pressed="true"
+                >
+                  Read mode
+                </button>
+                <button
+                  class="mode-button"
+                  id="edit-mode-button"
+                  type="button"
+                  data-mode="edit"
+                  aria-pressed="false"
+                >
+                  Edit mode
+                </button>
+              </div>
             </div>
           </header>
 
@@ -204,26 +215,6 @@
                 <h3>Project List</h3>
               </div>
               <div class="panel-actions">
-                <div class="mode-switch" role="tablist" aria-label="Table mode">
-                  <button
-                    class="mode-button active"
-                    id="read-mode-button"
-                    type="button"
-                    data-mode="read"
-                    aria-pressed="true"
-                  >
-                    Read mode
-                  </button>
-                  <button
-                    class="mode-button"
-                    id="edit-mode-button"
-                    type="button"
-                    data-mode="edit"
-                    aria-pressed="false"
-                  >
-                    Edit mode
-                  </button>
-                </div>
                 <div class="new-island" id="new-island">
                   <button class="new-trigger" id="new-trigger" type="button" aria-expanded="false">
                     <span class="new-trigger-icon" aria-hidden="true">
@@ -349,46 +340,51 @@
         <section class="app-page" data-page="tasks">
           <header class="page-header">
             <div class="page-intro">
-              <p class="eyebrow">Project workspace</p>
-              <h1>Project Tasks</h1>
-              <p class="page-copy">用于查看当前选中项目的任务样例、负责人和推进状态，便于确认和 brief card 的联动表现。</p>
+              <p class="eyebrow">Task workspace</p>
+              <h1>Task List</h1>
+              <p class="page-copy">
+                面向执行协同的任务总表，聚焦任务状态、负责人和到期时间的快速浏览与编辑。
+              </p>
+            </div>
+            <div class="page-header-status">
+              <div class="data-status" aria-live="polite">
+                <span class="data-status-dot" data-global-status-dot data-state="loading"></span>
+                <span data-global-status-text>Loading data...</span>
+              </div>
+              <div class="mode-switch page-mode-switch" role="tablist" aria-label="Table mode">
+                <button class="mode-button active" type="button" data-mode="read" aria-pressed="true">
+                  Read mode
+                </button>
+                <button class="mode-button" type="button" data-mode="edit" aria-pressed="false">
+                  Edit mode
+                </button>
+              </div>
             </div>
           </header>
-          <section class="tasks-board">
-            <aside class="tasks-summary-panel">
-              <p class="detail-kicker">Selected Project</p>
-              <h2 id="tasks-project-title">AI Customer Service Upgrade</h2>
-              <p class="tasks-project-summary" id="tasks-project-summary">
-                <span class="detail-meta-value">PT-24001</span>
-                <span class="detail-meta-divider" aria-hidden="true"></span>
-                <span class="detail-meta-value">CN-2024-0186</span>
-              </p>
 
-              <div class="tasks-summary-metrics">
-                <article class="tasks-metric">
-                  <span>Open tasks</span>
-                  <strong id="tasks-open-count">0</strong>
-                </article>
-                <article class="tasks-metric">
-                  <span>In progress</span>
-                  <strong id="tasks-progress-count">0</strong>
-                </article>
-                <article class="tasks-metric">
-                  <span>Done</span>
-                  <strong id="tasks-done-count">0</strong>
-                </article>
-              </div>
-            </aside>
-
-            <section class="tasks-list-panel">
-              <div class="tasks-list-head">
+          <section class="content-grid task-content-grid">
+            <section class="main-panel task-list-panel">
+              <div class="panel-head">
                 <div>
-                  <h3>Task Samples</h3>
-                  <p>当前先使用任务样例数据验证项目详情和任务页联动。</p>
+                  <h3>Task List</h3>
                 </div>
               </div>
 
-              <div class="tasks-list" id="tasks-list"></div>
+              <div class="table-wrap tasks-table-wrap">
+                <table class="tasks-table">
+                  <thead>
+                    <tr>
+                      <th>Task</th>
+                      <th>Status</th>
+                      <th>Project</th>
+                      <th>Owner</th>
+                      <th>Due Date</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tasks-table-body"></tbody>
+                </table>
+              </div>
             </section>
           </section>
         </section>
@@ -400,8 +396,22 @@
               <h1>Project Delivery</h1>
               <p class="page-copy">当前页面预留给项目里程碑、交付节点与项目排期协同。</p>
             </div>
+            <div class="page-header-status">
+              <div class="data-status" aria-live="polite">
+                <span class="data-status-dot" data-global-status-dot data-state="loading"></span>
+                <span data-global-status-text>Loading data...</span>
+              </div>
+              <div class="mode-switch page-mode-switch" role="tablist" aria-label="Table mode">
+                <button class="mode-button active" type="button" data-mode="read" aria-pressed="true">
+                  Read mode
+                </button>
+                <button class="mode-button" type="button" data-mode="edit" aria-pressed="false">
+                  Edit mode
+                </button>
+              </div>
+              </div>
+            </div>
           </header>
-          <section class="blank-panel"></section>
         </section>
 
         <section class="app-page" data-page="archive">
@@ -411,115 +421,23 @@
               <h1>Project Archive</h1>
               <p class="page-copy">当前页面预留给项目归档记录、历史版本与已关闭项目检索。</p>
             </div>
-          </header>
-          <section class="blank-panel"></section>
-        </section>
-
-        <section class="app-page" data-page="test">
-          <header class="page-header">
-            <div class="page-intro">
-              <p class="eyebrow">Color test</p>
-              <h1>Test Page</h1>
-              <p class="page-copy">
-                这里集中对比灵动岛与右侧 project brief 的配色组合，方便直接挑选方向。
-              </p>
+            <div class="page-header-status">
+              <div class="data-status" aria-live="polite">
+                <span class="data-status-dot" data-global-status-dot data-state="loading"></span>
+                <span data-global-status-text>Loading data...</span>
+              </div>
+              <div class="mode-switch page-mode-switch" role="tablist" aria-label="Table mode">
+                <button class="mode-button active" type="button" data-mode="read" aria-pressed="true">
+                  Read mode
+                </button>
+                <button class="mode-button" type="button" data-mode="edit" aria-pressed="false">
+                  Edit mode
+                </button>
+              </div>
             </div>
           </header>
-
-          <section class="test-grid">
-            <article class="test-card">
-              <div class="test-card-head">
-                <div>
-                  <h3>Option A</h3>
-                  <p>Soft sage pair</p>
-                </div>
-                <span class="test-badge">Light</span>
-              </div>
-              <div class="test-preview">
-                <div class="test-island palette-a">
-                  <div class="test-input">Type a new project name</div>
-                  <div class="test-icon">+</div>
-                  <div class="test-icon">✓</div>
-                  <div class="test-icon">×</div>
-                </div>
-                <div class="test-brief palette-a">
-                  <span class="test-label">Active project</span>
-                  <h4>Smart City Data Platform</h4>
-                  <p>Data platform project for sensor streams and KPI dashboards.</p>
-                </div>
-              </div>
-            </article>
-
-            <article class="test-card">
-              <div class="test-card-head">
-                <div>
-                  <h3>Option B</h3>
-                  <p>Mist gray island + green brief</p>
-                </div>
-                <span class="test-badge">Balanced</span>
-              </div>
-              <div class="test-preview">
-                <div class="test-island palette-b">
-                  <div class="test-input">Type a new project name</div>
-                  <div class="test-icon">+</div>
-                  <div class="test-icon">✓</div>
-                  <div class="test-icon">×</div>
-                </div>
-                <div class="test-brief palette-b">
-                  <span class="test-label">Active project</span>
-                  <h4>Smart City Data Platform</h4>
-                  <p>Data platform project for sensor streams and KPI dashboards.</p>
-                </div>
-              </div>
-            </article>
-
-            <article class="test-card">
-              <div class="test-card-head">
-                <div>
-                  <h3>Option C</h3>
-                  <p>Cool gray-blue pair</p>
-                </div>
-                <span class="test-badge">Cool</span>
-              </div>
-              <div class="test-preview">
-                <div class="test-island palette-c">
-                  <div class="test-input">Type a new project name</div>
-                  <div class="test-icon">+</div>
-                  <div class="test-icon">✓</div>
-                  <div class="test-icon">×</div>
-                </div>
-                <div class="test-brief palette-c">
-                  <span class="test-label">Active project</span>
-                  <h4>Smart City Data Platform</h4>
-                  <p>Data platform project for sensor streams and KPI dashboards.</p>
-                </div>
-              </div>
-            </article>
-
-            <article class="test-card">
-              <div class="test-card-head">
-                <div>
-                  <h3>Option D</h3>
-                  <p>Warm sand-gray pair</p>
-                </div>
-                <span class="test-badge">Warm</span>
-              </div>
-              <div class="test-preview">
-                <div class="test-island palette-d">
-                  <div class="test-input">Type a new project name</div>
-                  <div class="test-icon">+</div>
-                  <div class="test-icon">✓</div>
-                  <div class="test-icon">×</div>
-                </div>
-                <div class="test-brief palette-d">
-                  <span class="test-label">Active project</span>
-                  <h4>Smart City Data Platform</h4>
-                  <p>Data platform project for sensor streams and KPI dashboards.</p>
-                </div>
-              </div>
-            </article>
-          </section>
         </section>
+
       </main>
     </div>
 

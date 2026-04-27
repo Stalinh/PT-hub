@@ -101,5 +101,6 @@ export const VIEW_STORAGE_KEY = "pt-hub-active-view";
 export const TABLE_MODE_STORAGE_KEY = "pt-hub-table-mode";
 export const LEVEL_OPTIONS = ["V", "K", "R", "N"];
 export const STATUS_OPTIONS = ["in design", "installing", "installed", "finished"];
+export const TASK_STATUS_OPTIONS = ["todo", "doing", "done"];
 export const PROJECT_DATA_ENDPOINT = "/api/project-data";
 export const TASK_DATA_ENDPOINT = "/api/task-data";

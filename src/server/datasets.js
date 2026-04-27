@@ -102,15 +102,25 @@ const DEFAULT_TASK_DATA = [
   {
     id: 101,
     projectId: 1,
+    projectName: "AI Customer Service Upgrade",
+    projectNo: "PT-24001",
+    contractNo: "CN-2024-0186",
+    projectLevel: "V",
+    projectStatus: "in design",
     title: "完成知识库映射字段核对",
     owner: "Lena",
-    status: "in progress",
+    status: "doing",
     dueDate: "2024-04-12",
     note: "等待客服侧补齐旧字段命名对照。",
   },
   {
     id: 102,
     projectId: 1,
+    projectName: "AI Customer Service Upgrade",
+    projectNo: "PT-24001",
+    contractNo: "CN-2024-0186",
+    projectLevel: "V",
+    projectStatus: "in design",
     title: "联调工单分发规则与回流链路",
     owner: "Mason",
     status: "todo",
@@ -120,6 +130,11 @@ const DEFAULT_TASK_DATA = [
   {
     id: 103,
     projectId: 1,
+    projectName: "AI Customer Service Upgrade",
+    projectNo: "PT-24001",
+    contractNo: "CN-2024-0186",
+    projectLevel: "V",
+    projectStatus: "in design",
     title: "整理灰度测试前置检查项",
     owner: "Ava",
     status: "done",
@@ -129,15 +144,25 @@ const DEFAULT_TASK_DATA = [
   {
     id: 201,
     projectId: 2,
+    projectName: "Blockchain Traceability Platform",
+    projectNo: "PT-24007",
+    contractNo: "CN-2024-0241",
+    projectLevel: "R",
+    projectStatus: "installing",
     title: "锁定跨境供应商字段标准",
     owner: "Iris",
-    status: "in progress",
+    status: "doing",
     dueDate: "2024-04-22",
     note: "还差欧洲供应商编码规则确认。",
   },
   {
     id: 202,
     projectId: 2,
+    projectName: "Blockchain Traceability Platform",
+    projectNo: "PT-24007",
+    contractNo: "CN-2024-0241",
+    projectLevel: "R",
+    projectStatus: "installing",
     title: "整理数据映射字典",
     owner: "Noah",
     status: "todo",
@@ -147,6 +172,11 @@ const DEFAULT_TASK_DATA = [
   {
     id: 203,
     projectId: 2,
+    projectName: "Blockchain Traceability Platform",
+    projectNo: "PT-24007",
+    contractNo: "CN-2024-0241",
+    projectLevel: "R",
+    projectStatus: "installing",
     title: "确认追溯链路验收口径",
     owner: "Emma",
     status: "todo",
@@ -156,6 +186,11 @@ const DEFAULT_TASK_DATA = [
   {
     id: 301,
     projectId: 3,
+    projectName: "Mobile App 3.0 Redesign",
+    projectNo: "PT-23019",
+    contractNo: "CN-2023-1138",
+    projectLevel: "N",
+    projectStatus: "finished",
     title: "完成验收问题清单关闭",
     owner: "Olivia",
     status: "done",
@@ -165,15 +200,25 @@ const DEFAULT_TASK_DATA = [
   {
     id: 302,
     projectId: 3,
+    projectName: "Mobile App 3.0 Redesign",
+    projectNo: "PT-23019",
+    contractNo: "CN-2023-1138",
+    projectLevel: "N",
+    projectStatus: "finished",
     title: "输出设计系统沉淀文档",
     owner: "Ethan",
-    status: "in progress",
+    status: "doing",
     dueDate: "2024-03-03",
     note: "组件用法和 token 定义待补充。",
   },
   {
     id: 303,
     projectId: 3,
+    projectName: "Mobile App 3.0 Redesign",
+    projectNo: "PT-23019",
+    contractNo: "CN-2023-1138",
+    projectLevel: "N",
+    projectStatus: "finished",
     title: "同步后续产品复用范围",
     owner: "Sophia",
     status: "todo",
@@ -183,15 +228,25 @@ const DEFAULT_TASK_DATA = [
   {
     id: 401,
     projectId: 4,
+    projectName: "Next-Gen ERP Refactoring",
+    projectNo: "PT-24003",
+    contractNo: "CN-2024-0204",
+    projectLevel: "K",
+    projectStatus: "installing",
     title: "推进剩余模块拆分",
     owner: "Leo",
-    status: "in progress",
+    status: "doing",
     dueDate: "2024-05-06",
     note: "当前卡在审批流模块边界定义。",
   },
   {
     id: 402,
     projectId: 4,
+    projectName: "Next-Gen ERP Refactoring",
+    projectNo: "PT-24003",
+    contractNo: "CN-2024-0204",
+    projectLevel: "K",
+    projectStatus: "installing",
     title: "梳理历史流程迁移回退方案",
     owner: "Mia",
     status: "todo",
@@ -201,6 +256,11 @@ const DEFAULT_TASK_DATA = [
   {
     id: 403,
     projectId: 4,
+    projectName: "Next-Gen ERP Refactoring",
+    projectNo: "PT-24003",
+    contractNo: "CN-2024-0204",
+    projectLevel: "K",
+    projectStatus: "installing",
     title: "补齐业务中断风险检查表",
     owner: "Henry",
     status: "todo",
@@ -210,15 +270,25 @@ const DEFAULT_TASK_DATA = [
   {
     id: 501,
     projectId: 5,
+    projectName: "Smart City Data Platform",
+    projectNo: "PT-24011",
+    contractNo: "CN-2024-0312",
+    projectLevel: "V",
+    projectStatus: "installed",
     title: "完成核心指标看板锁版",
     owner: "Grace",
-    status: "in progress",
+    status: "doing",
     dueDate: "2024-04-18",
     note: "剩余城市运行指标颜色待确认。",
   },
   {
     id: 502,
     projectId: 5,
+    projectName: "Smart City Data Platform",
+    projectNo: "PT-24011",
+    contractNo: "CN-2024-0312",
+    projectLevel: "V",
+    projectStatus: "installed",
     title: "确认管理端验收窗口",
     owner: "Jack",
     status: "todo",
@@ -228,6 +298,11 @@ const DEFAULT_TASK_DATA = [
   {
     id: 503,
     projectId: 5,
+    projectName: "Smart City Data Platform",
+    projectNo: "PT-24011",
+    contractNo: "CN-2024-0312",
+    projectLevel: "V",
+    projectStatus: "installed",
     title: "补齐传感器 KPI 数据校验",
     owner: "Chloe",
     status: "done",
@@ -342,6 +417,28 @@ function validateTaskData(list) {
       throw new Error(`taskData[${index}].projectId must be an integer.`);
     }
 
+    if (typeof task.projectName !== "string" || !task.projectName.trim()) {
+      throw new Error(`taskData[${index}].projectName must be a non-empty string.`);
+    }
+
+    if (typeof task.projectNo !== "string" || !task.projectNo.trim()) {
+      throw new Error(`taskData[${index}].projectNo must be a non-empty string.`);
+    }
+
+    if (typeof task.contractNo !== "string") {
+      throw new Error(`taskData[${index}].contractNo must be a string.`);
+    }
+
+    if (!["V", "K", "R", "N"].includes(task.projectLevel)) {
+      throw new Error(`taskData[${index}].projectLevel must be one of V, K, R, N.`);
+    }
+
+    if (!["in design", "installing", "installed", "finished"].includes(task.projectStatus)) {
+      throw new Error(
+        `taskData[${index}].projectStatus must be one of in design, installing, installed, finished.`
+      );
+    }
+
     if (typeof task.title !== "string" || !task.title.trim()) {
       throw new Error(`taskData[${index}].title must be a non-empty string.`);
     }
@@ -350,8 +447,8 @@ function validateTaskData(list) {
       throw new Error(`taskData[${index}].owner must be a string.`);
     }
 
-    if (!["todo", "in progress", "done"].includes(task.status)) {
-      throw new Error(`taskData[${index}].status must be todo, in progress, or done.`);
+    if (!["todo", "doing", "done"].includes(task.status)) {
+      throw new Error(`taskData[${index}].status must be todo, doing, or done.`);
     }
 
     if (typeof task.dueDate !== "string") {

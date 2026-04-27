@@ -34,10 +34,13 @@ async function ensureDataDirs() {
 async function writeDatasetAtomically(datasetKey, value) {
   const filePath = getDatasetFilePath(datasetKey);
   const tempFile = `${filePath}.tmp`;
-  const serialized = `${JSON.stringify({ [datasetKey]: value }, null, 2)}\n`;
-
-  await fs.writeFile(tempFile, serialized, "utf8");
+  await writeDatasetToFile(tempFile, datasetKey, value);
   await fs.rename(tempFile, filePath);
+}
+
+async function writeDatasetToFile(filePath, datasetKey, value) {
+  const serialized = `${JSON.stringify({ [datasetKey]: value }, null, 2)}\n`;
+  await fs.writeFile(filePath, serialized, "utf8");
 }
 
 async function archiveDatasetFile(datasetKey) {
@@ -52,7 +55,7 @@ async function archiveDatasetFile(datasetKey) {
 
   const baseName = fileName.replace(/\.json$/i, "");
   const archiveName = `${baseName}-${timestampForArchive()}.json`;
-  await fs.rename(filePath, path.join(ARCHIVE_DIR, archiveName));
+  await fs.copyFile(filePath, path.join(ARCHIVE_DIR, archiveName));
 }
 
 async function ensureDatasetFile(datasetKey) {
@@ -76,9 +79,15 @@ async function validateAllDatasets() {
 }
 
 async function readDataset(datasetKey) {
-  await ensureDatasetFile(datasetKey);
-
-  const raw = await fs.readFile(getDatasetFilePath(datasetKey), "utf8");
+  let raw;
+  try {
+    raw = await fs.readFile(getDatasetFilePath(datasetKey), "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      throw new HttpError(500, `${getDatasetConfig(datasetKey).fileName} is missing.`);
+    }
+    throw error;
+  }
   let parsed;
 
   try {
@@ -114,9 +123,18 @@ async function updateDataset(datasetKey, nextValue) {
 
   return queueWrite(datasetKey, async () => {
     await ensureDatasetFile(datasetKey);
-    await archiveDatasetFile(datasetKey);
-    await writeDatasetAtomically(datasetKey, nextValue);
-    return nextValue;
+    const filePath = getDatasetFilePath(datasetKey);
+    const tempFile = `${filePath}.tmp`;
+
+    try {
+      await writeDatasetToFile(tempFile, datasetKey, nextValue);
+      await archiveDatasetFile(datasetKey);
+      await fs.rename(tempFile, filePath);
+      return nextValue;
+    } catch (error) {
+      await fs.unlink(tempFile).catch(() => {});
+      throw error;
+    }
   });
 }
 

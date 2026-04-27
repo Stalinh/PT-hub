@@ -9,6 +9,12 @@ export function statusClass(status) {
   return "status-installed";
 }
 
+export function taskStatusClass(status) {
+  if (status === "done") return "status-finished";
+  if (status === "doing") return "status-installing";
+  return "status-design";
+}
+
 export function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -23,4 +29,3 @@ export function clampProgress(value) {
   if (Number.isNaN(parsed)) return 0;
   return Math.min(100, Math.max(0, parsed));
 }
-
