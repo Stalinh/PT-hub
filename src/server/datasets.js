@@ -331,6 +331,38 @@ function isIsoDateTime(value) {
   return typeof value === "string" && !Number.isNaN(Date.parse(value));
 }
 
+function normalizeIsoDate(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : "";
+}
+
+function validateProjectDateRange(project, index) {
+  const startDate = normalizeIsoDate(project.startDate);
+  const dueDate = normalizeIsoDate(project.dueDate);
+
+  if ("startDate" in project && typeof project.startDate !== "string") {
+    throw new Error(`projectData[${index}].startDate must be a string when provided.`);
+  }
+
+  if ("dueDate" in project && typeof project.dueDate !== "string") {
+    throw new Error(`projectData[${index}].dueDate must be a string when provided.`);
+  }
+
+  if (project.startDate && !startDate) {
+    throw new Error(`projectData[${index}].startDate must use YYYY-MM-DD format.`);
+  }
+
+  if (project.dueDate && !dueDate) {
+    throw new Error(`projectData[${index}].dueDate must use YYYY-MM-DD format.`);
+  }
+
+  if (startDate && dueDate && dueDate < startDate) {
+    throw new Error(`projectData[${index}].dueDate cannot be earlier than startDate.`);
+  }
+}
+
 function validateProjectData(list) {
   if (!Array.isArray(list)) {
     throw new Error("projectData must be an array.");
@@ -407,6 +439,8 @@ function validateProjectData(list) {
     if (!isIsoDateTime(project.updatedAt)) {
       throw new Error(`projectData[${index}].updatedAt must be a valid ISO datetime string.`);
     }
+
+    validateProjectDateRange(project, index);
   });
 }
 

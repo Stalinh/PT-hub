@@ -177,17 +177,19 @@ export function renderTaskStatusCell(state, task) {
 }
 
 export function renderTaskDueDateCell(state, task) {
-  if (isEditingTaskCell(state, task.id, "dueDate")) {
-    return renderTaskTextInput(task, "dueDate", "Due date", "compact-input");
-  }
-
   if (state.currentTableMode === "edit") {
-    return renderTaskEditableShell(
-      task,
-      "dueDate",
-      "Edit due date",
-      `<span class="project-code">${escapeHtml(task.dueDate || "--")}</span>`
-    );
+    return `
+      <button
+        class="editable-shell task-date-trigger"
+        type="button"
+        data-task-date-trigger="true"
+        data-task-id="${task.id}"
+        data-date-picker-anchor="true"
+        aria-label="Edit due date"
+      >
+        <span class="project-code detail-date-value">${escapeHtml(task.dueDate || "--")}</span>
+      </button>
+    `;
   }
 
   return `<span class="project-code">${escapeHtml(task.dueDate || "--")}</span>`;

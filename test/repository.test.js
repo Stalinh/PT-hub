@@ -120,3 +120,21 @@ test("updateDataset validates task project snapshot fields", async (t) => {
     );
   });
 });
+
+test("updateDataset rejects project dates when due date is earlier than start date", async (t) => {
+  await withRepository(t, async ({ repository }) => {
+    await repository.ensureAllDatasetFiles();
+
+    const currentProjectData = await repository.readDataset("projectData");
+    const invalidProjectData = currentProjectData.map((project, index) =>
+      index === 0
+        ? { ...project, startDate: "2026-04-27", dueDate: "2026-04-16" }
+        : project
+    );
+
+    await assert.rejects(
+      repository.updateDataset("projectData", invalidProjectData),
+      /projectData\[0\]\.dueDate cannot be earlier than startDate/
+    );
+  });
+});

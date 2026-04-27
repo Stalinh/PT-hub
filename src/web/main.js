@@ -175,6 +175,22 @@ function normalizeDisplayDate(value) {
   return parsed.toISOString().slice(0, 10);
 }
 
+function isDateRangeValid(startDate, dueDate) {
+  const normalizedStart = normalizeDisplayDate(startDate);
+  const normalizedDue = normalizeDisplayDate(dueDate);
+  if (!normalizedStart || !normalizedDue) return true;
+  return normalizedDue >= normalizedStart;
+}
+
+function canApplyProjectDateChange(project, field, value) {
+  if (field !== "startDate" && field !== "dueDate") return true;
+  if (!project) return false;
+
+  const nextStartDate = field === "startDate" ? value : project.startDate;
+  const nextDueDate = field === "dueDate" ? value : project.dueDate;
+  return isDateRangeValid(nextStartDate, nextDueDate);
+}
+
 function getDerivedProjectDueDate(taskSnapshot) {
   if (!taskSnapshot?.tasks?.length) return "";
 
@@ -483,6 +499,7 @@ function bindTaskRowEvents(row, task) {
     });
 
     bindTaskEditableCellEvents(row);
+    bindTaskDateTriggerEvents(row);
   }
 
   const deleteButton = row.querySelector("[data-task-delete-id]");
@@ -1150,6 +1167,13 @@ function updateProjectField(projectId, field, value, options = {}) {
   const { persist = true, rerenderRow = true } = options;
   const project = state.projectData.find((item) => item.id === projectId);
   if (!project) return;
+  if (!canApplyProjectDateChange(project, field, value)) {
+    setDataStatus("error", "Due date cannot be earlier than start date.");
+    if (project.id === state.selectedProjectId && (field === "startDate" || field === "dueDate")) {
+      updateDetailDates(project);
+    }
+    return;
+  }
 
   if (field === "progress") {
     project.progress = clampProgress(value);
@@ -1288,6 +1312,7 @@ function bindDetailRemarkEditor(project) {
     event.stopPropagation();
     openDetailTextEditor(detailEls.remark, {
       value: project.remark,
+      displayValue: getDetailRemarkDisplayValue(project),
       multiline: true,
       className: "detail-inline-copy",
       onCommit: (nextValue) => {
@@ -1303,12 +1328,24 @@ function bindDetailRemarkEditor(project) {
   };
 }
 
+function getDetailRemarkDisplayValue(project) {
+  if (typeof project?.remark === "string" && project.remark.trim()) {
+    return project.remark;
+  }
+
+  return state.currentTableMode === "edit"
+    ? "Click to add a remark."
+    : "";
+}
+
 function updateDetailRemark(project) {
+  const isEmptyRemark = !project.remark.trim();
   detailEls.remark.classList.remove("detail-editable-target");
+  detailEls.remark.classList.toggle("detail-remark-empty", isEmptyRemark);
   detailEls.remark.removeAttribute("tabindex");
   detailEls.remark.onclick = null;
   detailEls.remark.onkeydown = null;
-  detailEls.remark.textContent = project.remark;
+  detailEls.remark.textContent = getDetailRemarkDisplayValue(project);
   bindDetailRemarkEditor(project);
 }
 
@@ -1648,6 +1685,10 @@ function formatDateValue(date) {
   return `${year}-${month}-${day}`;
 }
 
+function getDatePickerAnchor(element) {
+  return element?.closest?.("[data-date-picker-anchor]") || element?.closest?.(".detail-schedule-point") || element;
+}
+
 function buildCalendarMatrix(monthDate) {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
@@ -1684,7 +1725,10 @@ function openDetailDatePicker(element, options) {
   const { value, displayValue, onCommit, onCancel } = options;
   if (!element) return;
 
-  if (state.activeDetailEditor?.element === element) return;
+  if (state.activeDetailEditor?.element === element) {
+    closeActiveDetailEditor({ commit: false });
+    return;
+  }
   closeActiveDetailEditor();
 
   const originalValue = normalizeDisplayDate(value) || "";
@@ -1755,8 +1799,8 @@ function openDetailDatePicker(element, options) {
 
   const cleanup = () => {
     panel.remove();
-    const point = element.closest(".detail-schedule-point");
-    point?.classList.remove("is-picker-open");
+    const anchor = getDatePickerAnchor(element);
+    anchor?.classList.remove("is-picker-open");
     window.removeEventListener("resize", handleWindowChange);
     window.removeEventListener("scroll", handleWindowChange, true);
     document.removeEventListener("keydown", handleKeydown);
@@ -1809,8 +1853,8 @@ function openDetailDatePicker(element, options) {
   });
 
   document.body.appendChild(panel);
-  const point = element.closest(".detail-schedule-point");
-  point?.classList.add("is-picker-open");
+  const anchor = getDatePickerAnchor(element);
+  anchor?.classList.add("is-picker-open");
 
   state.activeDetailEditor = {
     type: "date-picker",
@@ -1829,6 +1873,35 @@ function openDetailDatePicker(element, options) {
   window.addEventListener("resize", handleWindowChange);
   window.addEventListener("scroll", handleWindowChange, true);
   document.addEventListener("keydown", handleKeydown);
+}
+
+function bindTaskDateTriggerEvents(row) {
+  row.querySelectorAll("[data-task-date-trigger='true']").forEach((control) => {
+    const openPicker = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const taskId = Number.parseInt(control.dataset.taskId, 10);
+      if (Number.isNaN(taskId)) return;
+      const task = state.taskData.find((item) => item.id === taskId);
+      if (!task) return;
+
+      openDetailDatePicker(control, {
+        value: task.dueDate,
+        displayValue: task.dueDate || "--",
+        onCommit: (nextValue) => {
+          updateTaskField(task.id, "dueDate", nextValue);
+        },
+        onCancel: () => replaceTaskRow(task.id),
+      });
+    };
+
+    control.addEventListener("click", openPicker);
+    control.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      openPicker(event);
+    });
+  });
 }
 
 // ============ Clipboard Operations ============

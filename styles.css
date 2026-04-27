@@ -3455,37 +3455,39 @@ tbody td > div:not(.project-cell):not(.progress-cell) {
 .detail-schedule-link {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 0;
   min-width: 0;
 }
 
 .detail-schedule-line {
   flex: 1 1 auto;
-  height: 1px;
+  height: 2px;
   min-width: 8px;
-  background: linear-gradient(90deg, rgba(223, 245, 235, 0.16) 0%, rgba(223, 245, 235, 0.5) 50%, rgba(223, 245, 235, 0.16) 100%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(223, 245, 235, 0.14) 0%, rgba(223, 245, 235, 0.36) 50%, rgba(223, 245, 235, 0.14) 100%);
 }
 
-.detail-schedule-train {
+.detail-schedule-knot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  color: rgba(245, 251, 248, 0.82);
+  width: 10px;
+  height: 10px;
+  margin: 0 6px;
+  border-radius: 999px;
   flex: none;
-}
-
-.detail-schedule-train svg,
-.detail-schedule-train i {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2;
+  background: rgba(240, 248, 244, 0.78);
+  box-shadow:
+    0 0 0 3px rgba(223, 245, 235, 0.08),
+    0 0 12px rgba(208, 239, 225, 0.12);
 }
 
 .detail-schedule-point.is-editable:hover .detail-date-value,
 .detail-schedule-point.is-editable:focus-within .detail-date-value,
-.detail-schedule-point.is-picker-open .detail-date-value {
+.detail-schedule-point.is-picker-open .detail-date-value,
+.task-date-trigger:hover .detail-date-value,
+.task-date-trigger:focus-visible .detail-date-value,
+.task-date-trigger.is-picker-open .detail-date-value {
   color: rgba(251, 254, 253, 1);
 }
 
@@ -3504,6 +3506,31 @@ tbody td > div:not(.project-cell):not(.progress-cell) {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   white-space: nowrap;
+}
+
+.task-date-trigger {
+  width: auto;
+  max-width: 100%;
+  min-height: 34px;
+  margin: 0 auto;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.task-date-trigger:focus-visible {
+  outline: 0;
+}
+
+.task-date-trigger .detail-date-value {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #5c554d;
+  text-shadow: none;
 }
 
 dt {
@@ -3526,6 +3553,14 @@ dd {
   margin-top: 8px;
   line-height: 1.65;
   color: var(--detail-soft);
+}
+
+#detail-remark {
+  min-height: 26px;
+}
+
+#detail-remark.detail-remark-empty {
+  color: rgba(226, 243, 235, 0.52);
 }
 
 .detail-module + .detail-module {
@@ -3722,12 +3757,12 @@ dd {
   padding: 12px;
   border-radius: 16px;
   background:
-    linear-gradient(180deg, rgba(233, 255, 245, 0.12) 0%, rgba(233, 255, 245, 0.03) 16%, rgba(233, 255, 245, 0) 42%),
-    linear-gradient(160deg, rgba(6, 47, 36, 0.98) 0%, rgba(8, 61, 46, 0.98) 40%, rgba(14, 87, 66, 0.96) 100%);
-  border: 1px solid rgba(219, 247, 235, 0.14);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 252, 247, 0.18) 18%, rgba(255, 252, 247, 0) 42%),
+    linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(247, 242, 234, 0.98) 100%);
+  border: 1px solid rgba(32, 29, 26, 0.08);
   box-shadow:
-    inset 0 1px 0 rgba(238, 255, 247, 0.16),
-    0 24px 48px rgba(6, 33, 25, 0.34);
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 24px 48px rgba(54, 44, 35, 0.18);
   backdrop-filter: blur(16px) saturate(120%);
   -webkit-backdrop-filter: blur(16px) saturate(120%);
 }
@@ -3744,7 +3779,7 @@ dd {
   text-align: center;
   font-size: 14px;
   font-weight: 700;
-  color: rgba(248, 252, 250, 0.96);
+  color: var(--ink);
 }
 
 .detail-date-picker-nav {
@@ -3756,16 +3791,16 @@ dd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(239, 248, 243, 0.1);
-  color: rgba(244, 250, 247, 0.82);
-  box-shadow: inset 0 0 0 1px rgba(220, 248, 236, 0.1);
+  background: rgba(15, 90, 69, 0.08);
+  color: rgba(32, 29, 26, 0.74);
+  box-shadow: inset 0 0 0 1px rgba(15, 90, 69, 0.1);
   transition: background 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .detail-date-picker-nav:hover,
 .detail-date-picker-nav:focus-visible {
-  background: rgba(239, 248, 243, 0.16);
-  color: rgba(250, 253, 251, 0.98);
+  background: rgba(15, 90, 69, 0.14);
+  color: var(--accent);
   transform: translateY(-1px);
 }
 
@@ -3792,7 +3827,7 @@ dd {
   text-align: center;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(231, 244, 238, 0.54);
+  color: var(--muted-soft);
 }
 
 .detail-date-picker-grid {
@@ -3809,7 +3844,7 @@ dd {
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: rgba(245, 251, 248, 0.9);
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -3817,22 +3852,23 @@ dd {
 }
 
 .detail-date-picker-day:hover {
-  background: rgba(239, 248, 243, 0.12);
+  background: rgba(15, 90, 69, 0.1);
   transform: translateY(-1px);
 }
 
 .detail-date-picker-day.is-outside {
-  color: rgba(228, 242, 235, 0.34);
+  color: rgba(111, 104, 95, 0.46);
 }
 
 .detail-date-picker-day.is-today {
-  box-shadow: inset 0 0 0 1px rgba(172, 223, 197, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(15, 90, 69, 0.26);
+  color: var(--accent);
 }
 
 .detail-date-picker-day.is-selected {
   background:
-    linear-gradient(180deg, rgba(233, 246, 240, 0.16) 0%, rgba(233, 246, 240, 0.02) 54%),
-    linear-gradient(90deg, #1b6a52 0%, #2d7c63 52%, #5c9b83 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 54%),
+    linear-gradient(90deg, #0f5a45 0%, #1b7a5a 52%, #3f9a79 100%);
   color: #f8fcfa;
   box-shadow:
     inset 0 1px 0 rgba(244, 251, 248, 0.16),
@@ -3851,8 +3887,8 @@ dd {
   padding: 0 10px;
   border: 0;
   border-radius: 999px;
-  background: rgba(239, 248, 243, 0.1);
-  color: rgba(244, 250, 247, 0.82);
+  background: rgba(15, 90, 69, 0.08);
+  color: rgba(32, 29, 26, 0.76);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -3860,14 +3896,14 @@ dd {
 }
 
 .detail-date-picker-action:hover {
-  background: rgba(239, 248, 243, 0.16);
-  color: rgba(250, 253, 251, 0.98);
+  background: rgba(15, 90, 69, 0.14);
+  color: var(--accent);
   transform: translateY(-1px);
 }
 
 .detail-date-picker-action.ghost {
   background: transparent;
-  color: rgba(231, 244, 238, 0.62);
+  color: var(--muted);
 }
 
 .detail-inline-task {

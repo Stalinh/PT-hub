@@ -7,15 +7,13 @@
       "remark": "",
       "projectNo": "",
       "contractNo": "",
-      "level": "R",
-      "status": "in design",
+      "level": "",
+      "status": "",
       "progress": 0,
-      "startDate": "2026-04-27",
-      "dueDate": "2026-04-28",
       "icon": "folder-open",
-      "version": 5,
+      "version": 1,
       "createdAt": "2026-04-27T13:26:42.344Z",
-      "updatedAt": "2026-04-27T13:41:03.597Z"
+      "updatedAt": "2026-04-27T13:26:42.344Z"
     }
   ]
 }
