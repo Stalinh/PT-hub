@@ -9,7 +9,7 @@ export function renderTaskListMarkup(tasks, state) {
   return tasks
     .map(
       (task) => `
-        <li class="detail-task-item">
+        <li class="detail-task-item ${task.status === "done" ? "is-done" : ""}">
           <div class="task-check detail-task-row">
             <label class="task-check-toggle">
               <input

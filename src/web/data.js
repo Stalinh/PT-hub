@@ -30,6 +30,8 @@ export function normalizeProject(item, fallbackId) {
     level: LEVEL_OPTIONS.includes(level) ? level : "",
     status: STATUS_OPTIONS.includes(status) ? status : "",
     progress: clampProgress(item?.progress),
+    startDate: typeof item?.startDate === "string" ? item.startDate : "",
+    dueDate: typeof item?.dueDate === "string" ? item.dueDate : "",
     icon: typeof item?.icon === "string" ? item.icon : "folder-open",
     version: Number.isInteger(item?.version) && item.version > 0 ? item.version : 1,
     createdAt: typeof item?.createdAt === "string" ? item.createdAt : now,

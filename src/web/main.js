@@ -163,6 +163,36 @@ function getProjectTaskSnapshot(project) {
   };
 }
 
+function normalizeDisplayDate(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const isoDateMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (isoDateMatch) return isoDateMatch[1];
+
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toISOString().slice(0, 10);
+}
+
+function getDerivedProjectDueDate(taskSnapshot) {
+  if (!taskSnapshot?.tasks?.length) return "";
+
+  const dueDates = taskSnapshot.tasks
+    .map((task) => normalizeDisplayDate(task.dueDate))
+    .filter(Boolean)
+    .sort();
+
+  return dueDates.at(-1) || "";
+}
+
+function getProjectSchedule(project, taskSnapshot = getProjectTaskSnapshot(project)) {
+  return {
+    startDate: normalizeDisplayDate(project.startDate) || normalizeDisplayDate(project.createdAt),
+    dueDate: normalizeDisplayDate(project.dueDate) || getDerivedProjectDueDate(taskSnapshot),
+  };
+}
+
 function buildTaskDraft(project, title = "") {
   const taskId = state.nextTaskId++;
   const normalizedTitle = typeof title === "string" ? title.trim() : "";
@@ -465,8 +495,7 @@ function bindTaskRowEvents(row, task) {
 function renderTaskRowElement(task) {
   const row = document.createElement("tr");
   row.dataset.taskRowId = String(task.id);
-  row.classList.toggle("selected", task.id === state.selectedTaskId);
-  row.className = `task-table-row ${task.id === state.selectedTaskId ? "selected" : ""}`;
+  row.className = `task-table-row ${task.status === "done" ? "is-done" : ""} ${task.id === state.selectedTaskId ? "selected" : ""}`.trim();
   row.innerHTML = renderTaskRowMarkup(state, task, { getTaskProjectView });
   bindTaskRowEvents(row, task);
   return row;
@@ -520,10 +549,16 @@ function confirmDeleteTask(taskId) {
   if (!task) return;
 
   openConfirmDialog({
-    eyebrow: "Delete task",
-    title: "删除任务",
-    message: `任务"${task.title}"删除后将无法恢复，相关执行记录会从当前任务列表中移除。`,
-    confirmLabel: "删除任务",
+    eyebrow: "高危删除",
+    title: `删除任务“${task.title}”？`,
+    message: "删除后将立即生效，当前任务内容不会进入回收站。",
+    alertLabel: "高危操作 · 删除后无法恢复",
+    impacts: [
+      "任务标题、状态和进度记录会被永久移除",
+      "关联执行记录将从当前任务列表中消失",
+    ],
+    note: "如果只是暂时不用，优先考虑将状态调整为 done 或保留归档。",
+    confirmLabel: "确认删除",
     onConfirm: () => deleteTask(taskId),
   });
 }
@@ -881,15 +916,22 @@ function confirmDeleteProject(projectId) {
   if (!project) return;
 
   const relatedTaskCount = state.taskData.filter((task) => task.projectId === projectId).length;
-  const message = relatedTaskCount
-    ? `项目"${project.name}"删除后将无法恢复，并会同时删除关联的 ${relatedTaskCount} 条 task。`
-    : `项目"${project.name}"删除后将无法恢复。`;
+  const impacts = ["项目名称、级别、进度与备注会被永久移除"];
+
+  if (relatedTaskCount) {
+    impacts.push(`将同时删除关联的 ${relatedTaskCount} 条任务记录`);
+  }
 
   openConfirmDialog({
-    eyebrow: relatedTaskCount ? "Delete project and tasks" : "Delete project",
-    title: "删除项目",
-    message,
-    confirmLabel: relatedTaskCount ? "删除项目和任务" : "删除项目",
+    eyebrow: "高危删除",
+    title: `删除项目“${project.name}”？`,
+    message: "删除后将立即生效，当前项目内容不会进入回收站。",
+    alertLabel: relatedTaskCount ? `高危操作 · 将联动删除 ${relatedTaskCount} 条任务` : "高危操作 · 删除后无法恢复",
+    impacts,
+    note: relatedTaskCount
+      ? "如果只是不再推进该项目，保留项目并清理单条任务通常更稳妥。"
+      : "如果只是暂时停用，建议先保留项目记录，避免丢失上下文。",
+    confirmLabel: relatedTaskCount ? "删除项目和任务" : "确认删除",
     onConfirm: () => deleteProject(projectId),
   });
 }
@@ -1125,6 +1167,8 @@ function updateProjectField(projectId, field, value, options = {}) {
       renderTasksPage(project);
     } else if (field === "progress") {
       updateDetailProgress(project);
+    } else if (field === "startDate" || field === "dueDate") {
+      updateDetailDates(project);
     } else if (field === "remark") {
       updateDetailRemark(project);
     }
@@ -1173,6 +1217,65 @@ function updateDetailHeader(project) {
 function updateDetailProgress(project) {
   detailEls.progressText.textContent = `${project.progress}%`;
   detailEls.progressBar.style.width = `${project.progress}%`;
+}
+
+function updateDetailDates(project, taskSnapshot = getProjectTaskSnapshot(project)) {
+  const schedule = getProjectSchedule(project, taskSnapshot);
+  detailEls.startDate.textContent = schedule.startDate || "--";
+  detailEls.dueDate.textContent = schedule.dueDate || "--";
+  bindDetailDateEditors(project, schedule);
+}
+
+function bindDetailDateEditor(element, project, field, displayValue, inputValue) {
+  if (!element) return;
+  const point = element.closest(".detail-schedule-point");
+
+  element.classList.remove("detail-editable-target");
+  element.removeAttribute("tabindex");
+  element.onclick = null;
+  element.onkeydown = null;
+  point?.classList.remove("is-editable");
+
+  if (state.currentTableMode !== "edit") return;
+
+  element.classList.add("detail-editable-target");
+  element.tabIndex = 0;
+  point?.classList.add("is-editable");
+  element.onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    openDetailDatePicker(element, {
+      value: inputValue,
+      displayValue,
+      onCommit: (nextValue) => {
+        updateProjectField(project.id, field, nextValue, { rerenderRow: false });
+      },
+      onCancel: () => updateDetailDates(project),
+    });
+  };
+  element.onkeydown = (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    element.click();
+  };
+}
+
+function bindDetailDateEditors(project, schedule = getProjectSchedule(project)) {
+  bindDetailDateEditor(
+    detailEls.startDate,
+    project,
+    "startDate",
+    schedule.startDate || "--",
+    normalizeDisplayDate(project.startDate) || schedule.startDate || ""
+  );
+  bindDetailDateEditor(
+    detailEls.dueDate,
+    project,
+    "dueDate",
+    schedule.dueDate || "--",
+    normalizeDisplayDate(project.dueDate) || schedule.dueDate || ""
+  );
 }
 
 function bindDetailRemarkEditor(project) {
@@ -1273,6 +1376,7 @@ function updateDetailTasks(project, taskSnapshot = getProjectTaskSnapshot(projec
 }
 
 function refreshProjectTaskSurfaces(project, taskSnapshot = getProjectTaskSnapshot(project)) {
+  updateDetailDates(project, taskSnapshot);
   updateDetailTasks(project, taskSnapshot);
   renderTasksPage(project);
 }
@@ -1289,6 +1393,7 @@ function syncDetailTaskAddButton(project = getActiveProject()) {
 function applyProjectToDetail(project) {
   updateDetailHeader(project);
   updateDetailProgress(project);
+  updateDetailDates(project);
   refreshProjectTaskSurfaces(project);
   updateDetailRemark(project);
   syncDetailTaskAddButton(project);
@@ -1304,6 +1409,8 @@ function syncDetailPanel() {
     `;
     detailEls.progressText.textContent = "0%";
     detailEls.progressBar.style.width = "0%";
+    detailEls.startDate.textContent = "--";
+    detailEls.dueDate.textContent = "--";
     detailEls.tasks.innerHTML = `<li class="detail-task-empty">Task items for the selected project will appear here.</li>`;
     detailEls.remark.textContent = "Project notes for the selected project will appear here.";
     syncDetailTaskAddButton(null);
@@ -1326,9 +1433,13 @@ function closeActiveDetailEditor(options = {}) {
   if (!editorState) return;
 
   const { control, restore, originalValue, onCommit, onCancel, multiline } = editorState;
-  const nextValue = control.value;
+  const nextValue =
+    editorState.type === "date-picker"
+      ? editorState.selectedValue ?? originalValue
+      : control.value;
 
   state.activeDetailEditor = null;
+  editorState.cleanup?.();
 
   if (!commit) {
     restore(originalValue);
@@ -1410,8 +1521,10 @@ function openDetailTextEditor(element, options) {
   const {
     value,
     multiline = false,
+    inputType = "text",
     className = "",
     closeOnBlur = true,
+    displayValue,
     onCommit,
     onCancel,
   } = options;
@@ -1425,7 +1538,7 @@ function openDetailTextEditor(element, options) {
   const editor = document.createElement(multiline ? "textarea" : "input");
   editor.className = ["detail-inline-editor", className].filter(Boolean).join(" ");
   if (!multiline) {
-    editor.type = "text";
+    editor.type = inputType;
   } else {
     editor.rows = 1;
   }
@@ -1442,7 +1555,7 @@ function openDetailTextEditor(element, options) {
   editor.style.textAlign = computed.textAlign;
 
   const restore = (nextValue) => {
-    element.textContent = nextValue;
+    element.textContent = nextValue || displayValue || "";
   };
 
   element.textContent = "";
@@ -1501,8 +1614,221 @@ function openDetailTextEditor(element, options) {
 
   window.requestAnimationFrame(() => {
     editor.focus();
-    editor.setSelectionRange(editor.value.length, editor.value.length);
+    if (typeof editor.setSelectionRange === "function" && inputType !== "date") {
+      editor.setSelectionRange(editor.value.length, editor.value.length);
+    }
   });
+}
+
+function parseDateValue(value) {
+  if (typeof value !== "string") return null;
+  const match = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  const year = Number.parseInt(match[1], 10);
+  const month = Number.parseInt(match[2], 10) - 1;
+  const day = Number.parseInt(match[3], 10);
+  const date = new Date(year, month, day);
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function formatDateValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function buildCalendarMatrix(monthDate) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const gridStart = new Date(year, month, 1 - startOffset);
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(gridStart);
+    date.setDate(gridStart.getDate() + index);
+    return date;
+  });
+}
+
+function positionDatePickerPanel(panel, anchor) {
+  if (!panel || !anchor) return;
+  const rect = anchor.getBoundingClientRect();
+  const panelRect = panel.getBoundingClientRect();
+  const viewportPadding = 12;
+  const top =
+    rect.bottom + 10 + panelRect.height <= window.innerHeight - viewportPadding
+      ? rect.bottom + 10
+      : Math.max(viewportPadding, rect.top - panelRect.height - 10);
+  const left = Math.min(
+    Math.max(viewportPadding, rect.right - panelRect.width),
+    window.innerWidth - panelRect.width - viewportPadding
+  );
+
+  panel.style.top = `${top + window.scrollY}px`;
+  panel.style.left = `${left + window.scrollX}px`;
+}
+
+function openDetailDatePicker(element, options) {
+  const { value, displayValue, onCommit, onCancel } = options;
+  if (!element) return;
+
+  if (state.activeDetailEditor?.element === element) return;
+  closeActiveDetailEditor();
+
+  const originalValue = normalizeDisplayDate(value) || "";
+  const selectedDate = parseDateValue(originalValue);
+  let visibleMonth = selectedDate || parseDateValue(normalizeDisplayDate(displayValue) || "") || new Date();
+
+  const panel = document.createElement("div");
+  panel.className = "detail-date-picker";
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-modal", "false");
+
+  const restore = () => {
+    element.textContent = displayValue || "--";
+  };
+
+  const renderPanel = () => {
+    const selectedValue = state.activeDetailEditor?.selectedValue ?? originalValue;
+    const todayValue = formatDateValue(new Date());
+    const monthLabel = new Intl.DateTimeFormat("en-US", {
+      month: "long",
+      year: "numeric",
+    }).format(visibleMonth);
+    const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const days = buildCalendarMatrix(visibleMonth);
+
+    panel.innerHTML = `
+      <div class="detail-date-picker-head">
+        <button class="detail-date-picker-nav" type="button" data-date-nav="-1" aria-label="Previous month">
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <div class="detail-date-picker-month">${monthLabel}</div>
+        <button class="detail-date-picker-nav" type="button" data-date-nav="1" aria-label="Next month">
+          <i data-lucide="chevron-right"></i>
+        </button>
+      </div>
+      <div class="detail-date-picker-weekdays">
+        ${weekdayLabels.map((label) => `<span>${label}</span>`).join("")}
+      </div>
+      <div class="detail-date-picker-grid">
+        ${days
+          .map((date) => {
+            const dateValue = formatDateValue(date);
+            const inMonth = date.getMonth() === visibleMonth.getMonth();
+            const isSelected = selectedValue === dateValue;
+            const isToday = todayValue === dateValue;
+            return `
+              <button
+                class="detail-date-picker-day ${inMonth ? "" : "is-outside"} ${isSelected ? "is-selected" : ""} ${isToday ? "is-today" : ""}"
+                type="button"
+                data-date-value="${dateValue}"
+              >
+                ${date.getDate()}
+              </button>
+            `;
+          })
+          .join("")}
+      </div>
+      <div class="detail-date-picker-actions">
+        <button class="detail-date-picker-action" type="button" data-date-action="today">Today</button>
+        <button class="detail-date-picker-action" type="button" data-date-action="clear">Clear</button>
+        <button class="detail-date-picker-action ghost" type="button" data-date-action="cancel">Cancel</button>
+      </div>
+    `;
+
+    window.lucide.createIcons();
+    positionDatePickerPanel(panel, element);
+  };
+
+  const cleanup = () => {
+    panel.remove();
+    const point = element.closest(".detail-schedule-point");
+    point?.classList.remove("is-picker-open");
+    window.removeEventListener("resize", handleWindowChange);
+    window.removeEventListener("scroll", handleWindowChange, true);
+    document.removeEventListener("keydown", handleKeydown);
+  };
+
+  const handleWindowChange = () => {
+    positionDatePickerPanel(panel, element);
+  };
+
+  const handleKeydown = (event) => {
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    closeActiveDetailEditor({ commit: false });
+  };
+
+  panel.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    const navButton = event.target.closest("[data-date-nav]");
+    if (navButton) {
+      visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + Number(navButton.dataset.dateNav), 1);
+      renderPanel();
+      return;
+    }
+
+    const dayButton = event.target.closest("[data-date-value]");
+    if (dayButton) {
+      state.activeDetailEditor.selectedValue = dayButton.dataset.dateValue || "";
+      closeActiveDetailEditor();
+      return;
+    }
+
+    const actionButton = event.target.closest("[data-date-action]");
+    if (!actionButton) return;
+
+    const action = actionButton.dataset.dateAction;
+    if (action === "today") {
+      state.activeDetailEditor.selectedValue = formatDateValue(new Date());
+      closeActiveDetailEditor();
+      return;
+    }
+
+    if (action === "clear") {
+      state.activeDetailEditor.selectedValue = "";
+      closeActiveDetailEditor();
+      return;
+    }
+
+    closeActiveDetailEditor({ commit: false });
+  });
+
+  document.body.appendChild(panel);
+  const point = element.closest(".detail-schedule-point");
+  point?.classList.add("is-picker-open");
+
+  state.activeDetailEditor = {
+    type: "date-picker",
+    element,
+    control: panel,
+    originalValue,
+    selectedValue: originalValue,
+    restore,
+    onCommit,
+    onCancel,
+    multiline: false,
+    cleanup,
+  };
+
+  renderPanel();
+  window.addEventListener("resize", handleWindowChange);
+  window.addEventListener("scroll", handleWindowChange, true);
+  document.addEventListener("keydown", handleKeydown);
 }
 
 // ============ Clipboard Operations ============
@@ -1947,7 +2273,12 @@ function initGlobalEvents() {
 
   document.addEventListener("click", (event) => {
     if (!state.activeDetailEditor) return;
-    if (event.target === state.activeDetailEditor.control) return;
+    if (
+      event.target === state.activeDetailEditor.control ||
+      state.activeDetailEditor.control.contains?.(event.target)
+    ) {
+      return;
+    }
     if (state.activeDetailEditor.element.contains(event.target)) return;
     closeActiveDetailEditor();
   });

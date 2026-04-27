@@ -10,12 +10,10 @@
       "level": "",
       "status": "",
       "progress": 0,
-      "startDate": "2026-04-27",
-      "dueDate": "2026-04-15",
       "icon": "folder-open",
-      "version": 49,
+      "version": 10,
       "createdAt": "2026-04-27T10:08:45.130Z",
-      "updatedAt": "2026-04-27T11:47:55.155Z"
+      "updatedAt": "2026-04-27T10:08:51.924Z"
     },
     {
       "id": 12,
@@ -27,8 +25,6 @@
       "level": "N",
       "status": "in design",
       "progress": 0,
-      "startDate": "",
-      "dueDate": "",
       "icon": "folder-open",
       "version": 2,
       "createdAt": "2026-04-27T10:04:06.906Z",
@@ -44,8 +40,6 @@
       "level": "N",
       "status": "in design",
       "progress": 0,
-      "startDate": "",
-      "dueDate": "",
       "icon": "folder-open",
       "version": 1,
       "createdAt": "2026-04-27T10:03:27.971Z",

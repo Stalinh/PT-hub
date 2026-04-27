@@ -10,7 +10,7 @@
       "projectStatus": "installing",
       "title": "锁定跨境供应商字段标准",
       "owner": "Iris",
-      "status": "done",
+      "status": "doing",
       "dueDate": "2024-04-22",
       "note": "还差欧洲供应商编码规则确认。"
     },
@@ -41,48 +41,6 @@
       "status": "todo",
       "dueDate": "2024-04-28",
       "note": "法务与质量团队联合确认。"
-    },
-    {
-      "id": 204,
-      "projectId": 13,
-      "projectName": "法国红酒和官方",
-      "projectNo": "",
-      "contractNo": "",
-      "projectLevel": "",
-      "projectStatus": "",
-      "title": "New task",
-      "owner": "",
-      "status": "todo",
-      "dueDate": "",
-      "note": ""
-    },
-    {
-      "id": 205,
-      "projectId": 13,
-      "projectName": "法国红酒和官方",
-      "projectNo": "",
-      "contractNo": "",
-      "projectLevel": "",
-      "projectStatus": "",
-      "title": "New task",
-      "owner": "",
-      "status": "todo",
-      "dueDate": "",
-      "note": ""
-    },
-    {
-      "id": 206,
-      "projectId": 13,
-      "projectName": "法国红酒和官方",
-      "projectNo": "",
-      "contractNo": "",
-      "projectLevel": "",
-      "projectStatus": "",
-      "title": "New task",
-      "owner": "",
-      "status": "todo",
-      "dueDate": "",
-      "note": ""
     }
   ]
 }

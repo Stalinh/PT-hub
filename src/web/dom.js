@@ -21,6 +21,8 @@ export const detailEls = {
   summary: document.getElementById("detail-summary"),
   progressText: document.getElementById("detail-progress-text"),
   progressBar: document.getElementById("detail-progress-bar"),
+  startDate: document.getElementById("detail-start-date"),
+  dueDate: document.getElementById("detail-due-date"),
   tasks: document.getElementById("detail-tasks"),
   remark: document.getElementById("detail-remark"),
 };

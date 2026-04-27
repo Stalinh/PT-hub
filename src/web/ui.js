@@ -16,13 +16,30 @@ confirmDialog.innerHTML = `
     aria-labelledby="confirm-dialog-title"
     aria-describedby="confirm-dialog-message"
   >
-    <div class="confirm-dialog-icon" aria-hidden="true">
-      <i data-lucide="triangle-alert"></i>
+    <div class="confirm-dialog-scanlines" aria-hidden="true"></div>
+    <div class="confirm-dialog-corners" aria-hidden="true">
+      <span class="confirm-dialog-corner corner-top-left"></span>
+      <span class="confirm-dialog-corner corner-top-right"></span>
+      <span class="confirm-dialog-corner corner-bottom-left"></span>
+      <span class="confirm-dialog-corner corner-bottom-right"></span>
     </div>
-    <div class="confirm-dialog-copy">
-      <span class="confirm-dialog-eyebrow">Delete item</span>
-      <h3 id="confirm-dialog-title"></h3>
-      <p id="confirm-dialog-message"></p>
+    <div class="confirm-dialog-header">
+      <div class="confirm-dialog-icon" aria-hidden="true">
+        <i data-lucide="triangle-alert"></i>
+      </div>
+      <div class="confirm-dialog-copy">
+        <span class="confirm-dialog-eyebrow">Delete item</span>
+        <h3 id="confirm-dialog-title"></h3>
+      </div>
+    </div>
+    <div class="confirm-dialog-alertbar" data-confirm-alertbar="true">
+      <i data-lucide="siren"></i>
+      <span data-confirm-alert-label="true">此操作不可撤销</span>
+    </div>
+    <div class="confirm-dialog-body">
+      <p id="confirm-dialog-message" class="confirm-dialog-message"></p>
+      <ul class="confirm-dialog-impact-list" data-confirm-impact-list="true" hidden></ul>
+      <p class="confirm-dialog-note" data-confirm-note="true" hidden></p>
     </div>
     <div class="confirm-dialog-actions">
       <button class="confirm-dialog-button secondary" type="button" data-confirm-cancel="true">取消</button>
@@ -94,6 +111,9 @@ export function openConfirmDialog({
   message,
   eyebrow = "Delete item",
   confirmLabel = "删除",
+  alertLabel = "此操作不可撤销",
+  impacts = [],
+  note = "",
   onConfirm,
 }) {
   closeConfirmDialog();
@@ -101,12 +121,20 @@ export function openConfirmDialog({
   const eyebrowEl = confirmDialog.querySelector(".confirm-dialog-eyebrow");
   const titleEl = confirmDialog.querySelector("#confirm-dialog-title");
   const messageEl = confirmDialog.querySelector("#confirm-dialog-message");
+  const alertLabelEl = confirmDialog.querySelector("[data-confirm-alert-label='true']");
+  const impactListEl = confirmDialog.querySelector("[data-confirm-impact-list='true']");
+  const noteEl = confirmDialog.querySelector("[data-confirm-note='true']");
   const acceptButton = confirmDialog.querySelector("[data-confirm-accept='true']");
   const cancelButton = confirmDialog.querySelector("[data-confirm-cancel='true']");
 
   eyebrowEl.textContent = eyebrow;
   titleEl.textContent = title;
   messageEl.textContent = message;
+  alertLabelEl.textContent = alertLabel;
+  impactListEl.innerHTML = impacts.map((item) => `<li>${item}</li>`).join("");
+  impactListEl.hidden = impacts.length === 0;
+  noteEl.textContent = note;
+  noteEl.hidden = !note;
   acceptButton.textContent = confirmLabel;
   confirmDialog.hidden = false;
   document.body.classList.add("dialog-open");
